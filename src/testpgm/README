@@ -1,0 +1,41 @@
+This directory contains the following testfiles for diesel:
+
+Specific tests for the different phases
+---------------------------------------
+parstest1.d
+parstest2.d
+parstest3.d
+semtest1.d
+semtest2.d
+opttest1.d
+quadtest1.d
+codetest1.d
+
+Small general testprograms
+--------------------------
+fib.d	     { a simple test that uses recursion and relation operators }
+factorial.d  { more complex recursion and iteration over arrays }
+circle.d     { checks scoping rules and real arithmetic }
+params.d     { checks that the parameter stack is handled correctly }
+consttest1.d { tests handling of constants }
+unaryminus.d { tests unary minus }
+
+include files
+-------------
+stdio.d { routines to handle real and integer I/O }
+math.d  { some harder real arithmetic, used by testmath.d }
+
+Some testprograms that uses stdio.d
+-----------------------------------
+return.d { just a simple program that uses stdio.d }
+stone.d  { just a simple recursive program that uses stdio.d }
+sieve.d	 { checks large arrays (>13 bit offset) }
+
+
+some final testprograms
+-----------------------
+8q.d
+qsort.d
+testmath.d { uses math.d }
+tryme.d    { tests a lot of things }
+

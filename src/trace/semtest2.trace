@@ -1,0 +1,10 @@
+Generating assembler for procedure "INDEX"
+Type conflict, line 17, col 1: A function must return a value.
+Type conflict, line 25, col 6: Can't assign a real value to an integer variable.
+Type conflict, line 27, col 11: Type discrepancy between formal and actual parameters.
+Type conflict, line 28, col 7: Can't assign a real value to an integer variable.
+Type conflict, line 30, col 1: Procedures may not return a value.
+Type conflict, line 34, col 7: More actual than formal parameters.
+Type conflict, line 35, col 1: More formal than actual parameters.
+Type conflict, line 36, col 7: Type discrepancy between formal and actual parameters.
+Found 8 errors. Compilation aborted.

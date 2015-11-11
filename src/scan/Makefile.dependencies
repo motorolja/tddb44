@@ -1,0 +1,5 @@
+error.o: error.cc error.hh
+scanner.o: scanner.cc scanner.hh symtab.hh error.hh
+scantest.o: scantest.cc symtab.hh error.hh scanner.hh
+symtab.o: symtab.cc symtab.hh error.hh
+symbol.o: symbol.cc symtab.hh error.hh

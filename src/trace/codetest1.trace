@@ -1,0 +1,48 @@
+Symbol table will be printed after compilation.
+Generating assembler for procedure "WRITE_INT"
+Generating assembler, global level
+7GLOBAL.4VOID7INTEGER4REAL4READ5WRITE7INT-ARG5TRUNC8REAL-ARG4MAIN9WRITE_INT3VAL6ASCII05MINUS1C3BUF4BUFP8$1      8$2      8$3      8$4      8$5      8$6      8$7      8$8      8$9      8$10     8$11     8$12     8$13     8$14     8$15     8$16     8$17     8$18     8$19     8$20     8$21     8$22     
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------^ (pool_pos = 301)
+
+Symbol table (size = 38):
+Pos  Name      Lev Hash Back Offs Type      Tag
+-----------------------------------------------
+  0: GLOBAL.     0   -1  159    0 GLOBAL.   SYM_PROC      lbl = -1 ar_size = 0  
+  1: VOID        0   -1   82    0 VOID      SYM_NAMETYPE  
+  2: INTEGER     0   -1  462    0 VOID      SYM_NAMETYPE  
+  3: REAL        0   -1  324    0 VOID      SYM_NAMETYPE  
+  4: READ        0   -1  316    0 INTEGER   SYM_FUNC      lbl = 0  ar_size = 0  
+  5: WRITE       0   -1  139    0 VOID      SYM_PROC      lbl = 1  ar_size = 0  
+  6: INT-ARG     0   -1  210    0 INTEGER   SYM_PARAM     
+  7: TRUNC       0   -1  332    0 INTEGER   SYM_FUNC      lbl = 2  ar_size = 0  
+  8: REAL-ARG    0   -1  427    0 REAL      SYM_PARAM     
+  9: MAIN        0   -1  357    0 VOID      SYM_PROC      lbl = 3  ar_size = 8  
+ 10: WRITE_INT   1   -1  245    0 VOID      SYM_PROC      lbl = 4  ar_size = 264
+ 11: VAL         2   -1  131    0 INTEGER   SYM_PARAM     
+ 12: ASCII0      2   -1   57    0 INTEGER   SYM_CONST     value = 48
+ 13: MINUS       2   -1  396    0 INTEGER   SYM_CONST     value = 45
+ 14: C           2   -1   67    0 INTEGER   SYM_VAR       
+ 15: BUF         2   -1  509    8 INTEGER   SYM_ARRAY     card = 10  
+ 16: BUFP        2   -1  493   88 INTEGER   SYM_VAR       
+ 17: $1          2   -1  341   96 INTEGER   SYM_VAR       
+ 18: $2          2   -1   22  104 INTEGER   SYM_VAR       
+ 19: $3          2   -1  215  112 INTEGER   SYM_VAR       
+ 20: $4          2   -1  408  120 INTEGER   SYM_VAR       
+ 21: $5          2   -1   89  128 INTEGER   SYM_VAR       
+ 22: $6          2   -1  282  136 INTEGER   SYM_VAR       
+ 23: $7          2   -1  475  144 INTEGER   SYM_VAR       
+ 24: $8          2   -1  156  152 INTEGER   SYM_VAR       
+ 25: $9          2   -1  349  160 INTEGER   SYM_VAR       
+ 26: $10         2   -1  357  168 INTEGER   SYM_VAR       
+ 27: $11         2   -1    6  176 INTEGER   SYM_VAR       
+ 28: $12         2   -1  167  184 INTEGER   SYM_VAR       
+ 29: $13         2   -1  328  192 INTEGER   SYM_VAR       
+ 30: $14         2   -1  489  200 INTEGER   SYM_VAR       
+ 31: $15         2   -1  138  208 INTEGER   SYM_VAR       
+ 32: $16         2   -1  299  216 INTEGER   SYM_VAR       
+ 33: $17         2   -1  460  224 INTEGER   SYM_VAR       
+ 34: $18         2   -1  109  232 INTEGER   SYM_VAR       
+ 35: $19         2   -1  270  240 INTEGER   SYM_VAR       
+ 36: $20         2   -1   38  248 INTEGER   SYM_VAR       
+ 37: $21         2   -1  199  256 INTEGER   SYM_VAR       
+ 38: $22         1   -1  360    0 INTEGER   SYM_VAR       

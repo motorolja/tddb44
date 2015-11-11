@@ -1,0 +1,27 @@
+An AST will be printed for each block.
+No type checking will be performed.
+No optimization will be done.
+No quads will be generated.
+
+Unoptimized AST for "ECHO"
+Statement list (preceding, last_stmt)
++-NULL
++-Return (value)
+  +-Id (I) [INTEGER]
+
+Unoptimized AST for global level
+Statement list (preceding, last_stmt)
++-Statement list (preceding, last_stmt)
+| +-NULL
+| +-Assignment (left, right)
+|   +-Id (I) [INTEGER]
+|   +-Function call (function, arguments) [INTEGER]
+|     +-Id (ECHO) [INTEGER]
+|     +-Expression list (preceding, last_expr)
+|       +-NULL
+|       +-Integer [10289]
++-Assignment (left, right)
+  +-Indexed (id, index)
+  | +-Id (ARR) [INTEGER]
+  | +-Integer [1]
+  +-Id (I) [INTEGER]

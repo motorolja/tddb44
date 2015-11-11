@@ -1,0 +1,9 @@
+symbol.o: symbol.cc symtab.hh error.hh
+symtab.o: symtab.cc symtab.hh error.hh
+ast.o: ast.cc ast.hh symtab.hh error.hh quads.hh
+semantic.o: semantic.cc semantic.hh ast.hh symtab.hh error.hh quads.hh
+optimize.o: optimize.cc optimize.hh ast.hh symtab.hh error.hh quads.hh
+quads.o: quads.cc symtab.hh error.hh ast.hh quads.hh
+codegen.o: codegen.cc symtab.hh error.hh quads.hh ast.hh codegen.hh
+error.o: error.cc error.hh
+main.o: main.cc ast.hh symtab.hh error.hh quads.hh parser.hh

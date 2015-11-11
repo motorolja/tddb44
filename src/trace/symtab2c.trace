@@ -1,0 +1,43 @@
+Starting symtabtest.cc...
+Current environment: 0
+7GLOBAL.4VOID7INTEGER4REAL4READ5WRITE7INT-ARG5TRUNC8REAL-ARG9test_proc
+----------------------------------------------------------------------^ (pool_pos = 70)
+Current environment: 9
+Constant stored as:
+symbol:
+  id:        test_const1
+  type:      REAL
+  level:     1
+  hash_link: -1
+  back_link: 183
+  offset:    0
+  tag:       SYM_CONST 
+  class:     constant_symbol
+  const_value.rval:2.45
+Current environment: 0
+7GLOBAL.4VOID7INTEGER4REAL4READ5WRITE7INT-ARG5TRUNC8REAL-ARG9test_proc11test_param111test_param211test_const19test_var19test_func11test_array1
+------------------------------------------------------------------------------------------------------------------------------------------^ (pool_pos = 138)
+
+Symbol table (size = 15):
+Pos  Name      Lev Hash Back Offs Type      Tag
+-----------------------------------------------
+  0: GLOBAL.     0   -1  159    0 GLOBAL.   SYM_PROC      lbl = -1 ar_size = 0  
+  1: VOID        0   -1   82    0 VOID      SYM_NAMETYPE  
+  2: INTEGER     0   -1  462    0 VOID      SYM_NAMETYPE  
+  3: REAL        0   -1  324    0 VOID      SYM_NAMETYPE  
+  4: READ        0   -1  316    0 INTEGER   SYM_FUNC      lbl = 0  ar_size = 0  
+  5: WRITE       0   -1  139    0 VOID      SYM_PROC      lbl = 1  ar_size = 0  
+  6: INT-ARG     0   -1  210    0 INTEGER   SYM_PARAM     
+  7: TRUNC       0   -1  332    0 INTEGER   SYM_FUNC      lbl = 2  ar_size = 0  
+  8: REAL-ARG    0   -1  427    0 REAL      SYM_PARAM     
+  9: test_proc   0   -1  211    0 VOID      SYM_PROC      lbl = 3  ar_size = 8  
+ 10: test_param1 1   -1  481    0 INTEGER   SYM_PARAM     
+ 11: test_param2 1   -1  482    8 REAL      SYM_PARAM     prec = test_param1 
+ 12: test_const1 1   -1  183    0 REAL      SYM_CONST     value = 2.45
+ 13: test_var1   1   -1  249    0 INTEGER   SYM_VAR       
+ 14: test_func   1   -1  427    0 INTEGER   SYM_FUNC      lbl = 4  ar_size = 24 
+ 15: test_array1 2   -1  143    0 INTEGER   SYM_ARRAY     card = 3   
+ENDING TEST PROGRAM RUN -----------------------------
+
+
+

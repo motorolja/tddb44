@@ -1,0 +1,36 @@
+E -> E + T (left)
+  | T
+
+T -> T * F (left)
+ | T
+
+F -> P ^ F (right)
+  | P
+
+P -> id
+
+a)
+
+E
+|
+T
+
+T * F
+
+T * F | P
+
+F | P
+
+P | id
+
+id
+
+b)
+E
+T
+F
+P   ^   F
+id      | P ^ F
+        |  id | ^  | F
+                   | P
+                   | id

@@ -1,0 +1,237 @@
+Symbol table will be printed after compilation.
+An AST will be printed for each block.
+No optimization will be done.
+No quads will be generated.
+
+Unoptimized AST for "INDEX"
+Statement list (preceding, last_stmt)
++-Statement list (preceding, last_stmt)
+| +-NULL
+| +-Assignment (left, right)
+|   +-Id (J) [INTEGER]
+|   +-Integer [10]
++-While (condition, body)
+  +-Greater than (left, right) [INTEGER]
+  | +-Id (J) [INTEGER]
+  | +-Integer [0]
+  +-Statement list (preceding, last_stmt)
+    +-Statement list (preceding, last_stmt)
+    | +-Statement list (preceding, last_stmt)
+    | | +-NULL
+    | | +-Assignment (left, right)
+    | |   +-Indexed (id, index)
+    | |   | +-Id (I_ARR) [INTEGER]
+    | |   | +-Sub (left, right) [INTEGER]
+    | |   |   +-Add (left, right) [INTEGER]
+    | |   |   | +-Integer [1]
+    | |   |   | +-Id (I) [INTEGER]
+    | |   |   +-Integer [1]
+    | |   +-Id (J) [INTEGER]
+    | +-Assignment (left, right)
+    |   +-Indexed (id, index)
+    |   | +-Id (I_ARR) [INTEGER]
+    |   | +-Indexed (id, index)
+    |   |   +-Id (I_ARR) [INTEGER]
+    |   |   +-Id (I) [INTEGER]
+    |   +-Sub (left, right) [INTEGER]
+    |     +-Indexed (id, index)
+    |     | +-Id (I_ARR) [INTEGER]
+    |     | +-Id (I) [INTEGER]
+    |     +-Id (J) [INTEGER]
+    +-Assignment (left, right)
+      +-Id (J) [INTEGER]
+      +-Sub (left, right) [INTEGER]
+        +-Id (J) [INTEGER]
+        +-Integer [1]
+
+Unoptimized AST for "MAX"
+Statement list (preceding, last_stmt)
++-NULL
++-If (condition, then, elsif, else)
+  +-Greater than (left, right) [INTEGER]
+  | +-Id (A) [INTEGER]
+  | +-Id (B) [INTEGER]
+  +-Statement list (preceding, last_stmt)
+  | +-NULL
+  | +-Return (value)
+  |   +-Id (A) [INTEGER]
+  +-Elsif list (preceding, last_elsif)
+  | +-NULL
+  | +-Elsif (condition, body)
+  |   +-Greater than (left, right) [INTEGER]
+  |   | +-Id (B) [INTEGER]
+  |   | +-Id (A) [INTEGER]
+  |   +-Statement list (preceding, last_stmt)
+  |     +-NULL
+  |     +-Return (value)
+  |       +-Id (B) [INTEGER]
+  +-Statement list (preceding, last_stmt)
+    +-NULL
+    +-Return (value)
+      +-Id (A) [INTEGER]
+
+Unoptimized AST for "DO_ZERO"
+Statement list (preceding, last_stmt)
++-Statement list (preceding, last_stmt)
+| +-NULL
+| +-Assignment (left, right)
+|   +-Id (Z) [INTEGER]
+|   +-Id (ZERO) [INTEGER]
++-Procedure call (procedure, arguments)
+  +-Id (WRITE) [VOID]
+  +-Expression list (preceding, last_expr)
+    +-NULL
+    +-Id (Z) [INTEGER]
+
+Unoptimized AST for "NASTY"
+Statement list (preceding, last_stmt)
++-Statement list (preceding, last_stmt)
+| +-Statement list (preceding, last_stmt)
+| | +-Statement list (preceding, last_stmt)
+| | | +-Statement list (preceding, last_stmt)
+| | | | +-Statement list (preceding, last_stmt)
+| | | | | +-NULL
+| | | | | +-Assignment (left, right)
+| | | | |   +-Id (I) [INTEGER]
+| | | | |   +-Id (J) [INTEGER]
+| | | | +-Assignment (left, right)
+| | | |   +-Id (X) [REAL]
+| | | |   +-Cast [REAL]
+| | | |     +-Unary minus (expr) [INTEGER]
+| | | |       +-Id (I) [INTEGER]
+| | | +-Assignment (left, right)
+| | |   +-Id (I) [INTEGER]
+| | |   +-Idiv (left, right) [INTEGER]
+| | |     +-Id (I) [INTEGER]
+| | |     +-Id (J) [INTEGER]
+| | +-Assignment (left, right)
+| |   +-Id (X) [REAL]
+| |   +-Divide (left, right) [REAL]
+| |     +-Cast [REAL]
+| |     | +-Id (I) [INTEGER]
+| |     +-Cast [REAL]
+| |       +-Id (J) [INTEGER]
+| +-Procedure call (procedure, arguments)
+|   +-Id (DO_ZERO) [VOID]
+|   +-NULL
++-If (condition, then, elsif, else)
+  +-And (left, right) [INTEGER]
+  | +-Equal (left, right) [INTEGER]
+  | | +-Id (X) [REAL]
+  | | +-Cast [REAL]
+  | |   +-Id (I) [INTEGER]
+  | +-Less than (left, right) [INTEGER]
+  |   +-Id (I) [INTEGER]
+  |   +-Id (J) [INTEGER]
+  +-Statement list (preceding, last_stmt)
+  | +-Statement list (preceding, last_stmt)
+  | | +-Statement list (preceding, last_stmt)
+  | | | +-Statement list (preceding, last_stmt)
+  | | | | +-NULL
+  | | | | +-Assignment (left, right)
+  | | | |   +-Id (I) [INTEGER]
+  | | | |   +-Function call (function, arguments) [INTEGER]
+  | | | |     +-Id (MAX) [INTEGER]
+  | | | |     +-Expression list (preceding, last_expr)
+  | | | |       +-Expression list (preceding, last_expr)
+  | | | |       | +-NULL
+  | | | |       | +-Id (I) [INTEGER]
+  | | | |       +-Id (Y) [REAL]
+  | | | +-Assignment (left, right)
+  | | |   +-Id (J) [INTEGER]
+  | | |   +-Integer [0]
+  | | +-Assignment (left, right)
+  | |   +-Id (X) [REAL]
+  | |   +-Cast [REAL]
+  | |     +-Integer [0]
+  | +-Assignment (left, right)
+  |   +-Id (Y) [REAL]
+  |   +-Cast [REAL]
+  |     +-Integer [0]
+  +-NULL
+  +-NULL
+
+Unoptimized AST for global level
+Statement list (preceding, last_stmt)
++-Statement list (preceding, last_stmt)
+| +-Statement list (preceding, last_stmt)
+| | +-Statement list (preceding, last_stmt)
+| | | +-Statement list (preceding, last_stmt)
+| | | | +-Statement list (preceding, last_stmt)
+| | | | | +-NULL
+| | | | | +-Assignment (left, right)
+| | | | |   +-Id (A) [INTEGER]
+| | | | |   +-Integer [1]
+| | | | +-Assignment (left, right)
+| | | |   +-Id (B) [INTEGER]
+| | | |   +-Integer [2]
+| | | +-Assignment (left, right)
+| | |   +-Id (X) [REAL]
+| | |   +-Cast [REAL]
+| | |     +-Integer [1]
+| | +-Assignment (left, right)
+| |   +-Id (Y) [REAL]
+| |   +-Real [3.14]
+| +-Procedure call (procedure, arguments)
+|   +-Id (INDEX) [VOID]
+|   +-Expression list (preceding, last_expr)
+|     +-NULL
+|     +-Id (A) [INTEGER]
++-Procedure call (procedure, arguments)
+  +-Id (NASTY) [VOID]
+  +-Expression list (preceding, last_expr)
+    +-Expression list (preceding, last_expr)
+    | +-Expression list (preceding, last_expr)
+    | | +-Expression list (preceding, last_expr)
+    | | | +-NULL
+    | | | +-Idiv (left, right) [INTEGER]
+    | | |   +-Integer [1]
+    | | |   +-Integer [2]
+    | | +-Integer [5]
+    | +-Divide (left, right) [REAL]
+    |   +-Cast [REAL]
+    |   | +-Integer [1]
+    |   +-Cast [REAL]
+    |     +-Integer [2]
+    +-Add (left, right) [REAL]
+      +-Real [8]
+      +-Cast [REAL]
+        +-Integer [7]
+7GLOBAL.4VOID7INTEGER4REAL4READ5WRITE7INT-ARG5TRUNC8REAL-ARG8SEMTEST11A1B1X1Y5I_ARR5INDEX1I1J3MAX5NASTY1I1J7NASTY_17NASTY_27DO_ZERO4OREZ4ZERO1Z
+-----------------------------------------------------------------------------------------------------------------------------------------------^ (pool_pos = 143)
+
+Symbol table (size = 31):
+Pos  Name      Lev Hash Back Offs Type      Tag
+-----------------------------------------------
+  0: GLOBAL.     0   -1  159    0 GLOBAL.   SYM_PROC      lbl = -1 ar_size = 0  
+  1: VOID        0   -1   82    0 VOID      SYM_NAMETYPE  
+  2: INTEGER     0   -1  462    0 VOID      SYM_NAMETYPE  
+  3: REAL        0   -1  324    0 VOID      SYM_NAMETYPE  
+  4: READ        0   -1  316    0 INTEGER   SYM_FUNC      lbl = 0  ar_size = 0  
+  5: WRITE       0   -1  139    0 VOID      SYM_PROC      lbl = 1  ar_size = 0  
+  6: INT-ARG     0   -1  210    0 INTEGER   SYM_PARAM     
+  7: TRUNC       0   -1  332    0 INTEGER   SYM_FUNC      lbl = 2  ar_size = 0  
+  8: REAL-ARG    0   -1  427    0 REAL      SYM_PARAM     
+  9: SEMTEST1    0   -1  502    0 VOID      SYM_PROC      lbl = 3  ar_size = 112
+ 10: A           1   -1   65    0 INTEGER   SYM_VAR       
+ 11: B           1   -1   66    8 INTEGER   SYM_VAR       
+ 12: X           1   -1   88   16 REAL      SYM_VAR       
+ 13: Y           1   -1   89   24 REAL      SYM_VAR       
+ 14: I_ARR       1   -1   45   32 INTEGER   SYM_ARRAY     card = 10  
+ 15: INDEX       1   -1  216    0 VOID      SYM_PROC      lbl = 4  ar_size = 8  
+ 16: I           2   -1   73    0 INTEGER   SYM_PARAM     
+ 17: J           2   -1   74    0 INTEGER   SYM_VAR       
+ 18: MAX         1   -1   70    0 INTEGER   SYM_FUNC      lbl = 5  ar_size = 0  
+ 19: A           2   -1   65    0 INTEGER   SYM_PARAM     
+ 20: X           2   -1   88    8 REAL      SYM_PARAM     prec = A           
+ 21: NASTY       1   -1   47    0 VOID      SYM_PROC      lbl = 6  ar_size = 88 
+ 22: I           2   -1   73    0 INTEGER   SYM_PARAM     
+ 23: J           2   -1   74    8 INTEGER   SYM_PARAM     prec = I           
+ 24: X           2   -1   88   16 REAL      SYM_PARAM     prec = J           
+ 25: Y           2   -1   89   24 REAL      SYM_PARAM     prec = X           
+ 26: NASTY_1     2   -1   95    0 INTEGER   SYM_VAR       
+ 27: NASTY_2     2   -1   96    8 INTEGER   SYM_ARRAY     card = 10  
+ 28: DO_ZERO     2   -1  338    0 VOID      SYM_PROC      lbl = 7  ar_size = 8  
+ 29: OREZ        3   -1    0    0 INTEGER   SYM_CONST     value = 48
+ 30: ZERO        3   -1  128    0 INTEGER   SYM_CONST     value = 48
+ 31: Z           3   -1   90    0 INTEGER   SYM_VAR       

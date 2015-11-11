@@ -1,0 +1,35 @@
+An AST will be printed for each block.
+No type checking will be performed.
+No optimization will be done.
+No quads will be generated.
+
+Unoptimized AST for global level
+Statement list (preceding, last_stmt)
++-Statement list (preceding, last_stmt)
+| +-Statement list (preceding, last_stmt)
+| | +-NULL
+| | +-Assignment (left, right)
+| |   +-Id (I) [INTEGER]
+| |   +-Mult (left, right) [VOID]
+| |     +-Integer [3]
+| |     +-Integer [1]
+| +-Assignment (left, right)
+|   +-Id (A) [INTEGER]
+|   +-Add (left, right) [VOID]
+|     +-Id (I) [INTEGER]
+|     +-Integer [1]
++-If (condition, then, elsif, else)
+  +-Less than (left, right) [INTEGER]
+  | +-Sub (left, right) [VOID]
+  | | +-Integer [2]
+  | | +-Integer [3]
+  | +-Integer [4]
+  +-Statement list (preceding, last_stmt)
+  | +-NULL
+  | +-Assignment (left, right)
+  |   +-Id (I) [INTEGER]
+  |   +-Add (left, right) [VOID]
+  |     +-Id (A) [INTEGER]
+  |     +-Integer [5]
+  +-NULL
+  +-NULL

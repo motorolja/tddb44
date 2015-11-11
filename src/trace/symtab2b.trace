@@ -1,0 +1,101 @@
+Starting symtabtest.cc...
+Type conflict, line 0, col 0: Redeclaration: symbol:
+  id:        a
+  type:      INTEGER
+  level:     1
+  hash_link: -1
+  back_link: 97
+  offset:    0
+  tag:       SYM_VAR 
+  class:     variable_symbol
+
+Inside p2:
+symbol:
+  id:        c
+  type:      INTEGER
+  level:     3
+  hash_link: 15
+  back_link: 99
+  offset:    0
+  tag:       SYM_VAR 
+  class:     variable_symbol
+
+symbol:
+  id:        b
+  type:      REAL
+  level:     2
+  hash_link: 11
+  back_link: 98
+  offset:    0
+  tag:       SYM_VAR 
+  class:     variable_symbol
+
+symbol:
+  id:        a
+  type:      INTEGER
+  level:     1
+  hash_link: -1
+  back_link: 97
+  offset:    0
+  tag:       SYM_VAR 
+  class:     variable_symbol
+
+Inside p1:
+symbol:
+  id:        c
+  type:      REAL
+  level:     2
+  hash_link: 12
+  back_link: 99
+  offset:    8
+  tag:       SYM_VAR 
+  class:     variable_symbol
+
+symbol:
+  id:        b
+  type:      REAL
+  level:     2
+  hash_link: 11
+  back_link: 98
+  offset:    0
+  tag:       SYM_VAR 
+  class:     variable_symbol
+
+symbol:
+  id:        a
+  type:      INTEGER
+  level:     1
+  hash_link: -1
+  back_link: 97
+  offset:    0
+  tag:       SYM_VAR 
+  class:     variable_symbol
+
+7GLOBAL.4VOID7INTEGER4REAL4READ5WRITE7INT-ARG5TRUNC8REAL-ARG4prog1a1a1b1c2p11b1c2p21c
+-------------------------------------------------------------------------------------^ (pool_pos = 85)
+
+Symbol table (size = 17):
+Pos  Name      Lev Hash Back Offs Type      Tag
+-----------------------------------------------
+  0: GLOBAL.     0   -1  159    0 GLOBAL.   SYM_PROC      lbl = -1 ar_size = 0  
+  1: VOID        0   -1   82    0 VOID      SYM_NAMETYPE  
+  2: INTEGER     0   -1  462    0 VOID      SYM_NAMETYPE  
+  3: REAL        0   -1  324    0 VOID      SYM_NAMETYPE  
+  4: READ        0   -1  316    0 INTEGER   SYM_FUNC      lbl = 0  ar_size = 0  
+  5: WRITE       0   -1  139    0 VOID      SYM_PROC      lbl = 1  ar_size = 0  
+  6: INT-ARG     0   -1  210    0 INTEGER   SYM_PARAM     
+  7: TRUNC       0   -1  332    0 INTEGER   SYM_FUNC      lbl = 2  ar_size = 0  
+  8: REAL-ARG    0   -1  427    0 REAL      SYM_PARAM     
+  9: prog        0   -1   24    0 VOID      SYM_PROC      lbl = 3  ar_size = 24 
+ 10: a           1   -1   97    0 INTEGER   SYM_VAR       
+ 11: b           1   -1   98    8 INTEGER   SYM_VAR       
+ 12: c           1   -1   99   16 INTEGER   SYM_VAR       
+ 13: p1          1   -1  161    0 VOID      SYM_PROC      lbl = 4  ar_size = 16 
+ 14: b           2   -1   98    0 REAL      SYM_VAR       
+ 15: c           2   -1   99    8 REAL      SYM_VAR       
+ 16: p2          2   -1  162    0 VOID      SYM_PROC      lbl = 5  ar_size = 8  
+ 17: c           3   -1   99    0 INTEGER   SYM_VAR       
+ENDING TEST PROGRAM RUN -----------------------------
+
+
+

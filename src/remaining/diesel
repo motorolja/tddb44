@@ -1,0 +1,185 @@
+#!/bin/bash
+# usage:    diesel [options] <source>.d
+#
+# the following options are recognized:
+#
+# -a        Print AST to stdout at compile time.
+# -b        Do not generate a binary executable file.
+# -c        Do not perform type checking.
+# -d        Turn on bison debugging (to stdout). Spammy but detailed.
+# -e        Run the compiler through gdb to obtain a backtrace of a crash.
+# -f        Do not optimize.
+# -o <outfile>    Place the executable in <outfile> rather than `a.out'
+# -p        Do not generate quads, stop after type checking.
+# -q        Print quad lists to stdout at compile time. Pointless if
+#        the -p flag was given.
+# -s        Do not generate assembler code, stop after quads.
+# -t        Include quad trace printouts in the assembler code.
+# -y        Print symbol table to stdout at compile time.
+# -x        Experts only. Include assembly line numbers when generating the
+#           binary executable file, allowing you to know where it crashes
+#           on an assembly level. You need to run the compiled file through gdb
+#           for this. Additionally this will print on the preprocessed file to
+#           standard out for easy debugging.
+# -I*, -D*, -U*    These options are passed on verbatim to the preprocessor cpp.
+
+# Note that you can't combine several options under one -, like -abd, but
+# must rather do it like -a -b -d.
+
+set -o nounset
+
+bold_red="\e[00;31m$(tput bold)"
+normal="$(tput sgr0)\e[00m"
+
+# Some useful variables.
+cppopts=
+debug_flag=
+print_symtab_flag=
+print_ast_flag=
+print_quads_flag=
+no_typecheck_flag=
+no_optimized_ast_flag=
+no_quads_flag=
+no_assembler_flag=
+no_binary_flag=
+output=a.out
+source=0
+trace_flag=
+gdb_debug=
+assembler_debug=
+
+# Parse command line arguments.
+while [ $# -gt 0 ]; do
+    case "$1" in
+    -a)     print_ast_flag="-a"
+        ;;
+    -b)     no_binary_flag=1
+        ;;
+    -c)     no_typecheck_flag="-c"
+        ;;
+    -d)     debug_flag="-d"
+        ;;
+    -f)     no_optimized_ast_flag="-f"
+        ;;
+    -e)     gdb_debug=1
+        ;;
+    -o)     shift
+            if [ -z "$1" ]; then
+                echo missing argument for -o
+                exit 1
+            fi
+            output="$1"
+        ;;
+    -p)     no_quads_flag="-p"
+        ;;
+    -q)     print_quads_flag="-q"
+        ;;
+    -s)     no_assembler_flag="-s"
+        ;;
+    -t)     trace_flag="-t"
+        ;;
+    -y)     print_symtab_flag="-y"
+        ;;
+    -x)     assembler_debug=1
+        ;;
+    -I*)    cppopts="$cppopts $1"
+        ;;
+    -D*)    cppopts="$cppopts $1"
+        ;;
+    -U*)    cppopts="$cppopts $1"
+        ;;
+    -*)     echo Illegal argument "$1"
+            exit 1
+        ;;
+    *.d)    source="$1"
+        ;;
+    esac
+    shift
+done
+
+# Make sure there's a source file.
+if [ ! -f $source ]; then
+    echo "No source file."
+    exit 1
+fi
+
+if [ ! -f "compiler" ]; then
+    echo "No compiler found. (Did you forget to run make?)"
+    exit 1
+fi
+
+compiler_flags="$print_symtab_flag $print_ast_flag $debug_flag $no_typecheck_flag $no_optimized_ast_flag $no_quads_flag $print_quads_flag $no_assembler_flag $trace_flag"
+
+# Try to compile. Note that most arguments are passed on as is to the
+# compiler (see main.cc)
+
+# The -traditional-cpp flags forces cpp to keep the whitespace as it is
+# because for some reason it modifies the whitespace. This will make the
+# line count correct.
+cpp_flags="-traditional-cpp -C -P"
+
+# For some reason cpp prints a GPL header, so we need to get rid of that.
+# However the header is different from version to version (and/or distro?)
+# so we use a small trick here instead to count the lines to know how long
+# is it so we can strip it out from the final output.
+# Not pretty, but it works...
+cpp_ignore=$(echo "" | cpp $cpp_flags | wc -l)
+
+if [ -n "$gdb_debug" ]; then
+    tmpfile=$(mktemp /tmp/diesel-preprocessed-XXXXXXXXXX.d)
+    cpp $cpp_flags $source | tail -n+$cpp_ignore > "$tmpfile"
+    if [ $? -eq 0 ]; then
+        gdb ./compiler <<EOL
+run $compiler_flags "$tmpfile"
+bt
+kill
+quit
+EOL
+        echo
+    fi
+    code=$?
+    rm "$tmpfile"
+else
+    cpp $cpp_flags $source | tail -n+$cpp_ignore | ./compiler $compiler_flags
+    code=$?
+fi
+
+if [ $code -ne 0 ]; then
+    exit $code
+fi
+
+# If we don't want a binary executable, we stop here.
+if [ -n "$no_binary_flag" ]; then
+    exit 0
+fi
+
+if ! [ -f d.out ]; then
+    echo "Compilation aborted."
+    exit 1
+fi
+
+as_args="--64 --march=generic64+8087"
+if [ -n "$assembler_debug" ]; then
+    as_args="$as_args --gstabs"
+fi
+
+
+tmpfile_s=$(mktemp /tmp/diesel-XXXXXXXXXX.s)
+tmpfile_o=$(mktemp /tmp/diesel-XXXXXXXXXX.o)
+
+cat diesel_glue.s d.out > "$tmpfile_s"
+if [ -n "$assembler_debug" ]; then
+    cat -n "$tmpfile_s"
+fi
+
+as $as_args "$tmpfile_s" -o "$tmpfile_o"
+if [ $? -eq 0 ]; then
+    gcc -o $output "$tmpfile_o" diesel_rts.o
+    rm "$tmpfile_s" "$tmpfile_o"
+else
+    echo -e "${bold_red}The d.out file is causing the errors!${normal}"
+    rm "$tmpfile_s" "$tmpfile_o"
+    exit 1
+fi
+
+exit 0
