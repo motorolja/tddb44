@@ -22,8 +22,26 @@ extern YYLTYPE yylloc; // Used for position information, see below.
 
 /* If you want to include any flex declarations, this is where to do it. */
 
-%x c_comment
+/* Match whitespaces (maybe include carriage return \r or newline \n) */
+WS [ \t]+
+
+/* A single digit */
 DIGIT [0-9]
+
+/* Match any one standard alpha numeric ascii letter */
+ALPHA [a-zA-Z]
+
+/* Match the start of a (\") string to the ending (\"), allows empty strings */
+STRING \"[^\"^\n]*\"
+
+/* Match illegal characters */
+FORBIDDEN [#%$]
+
+/* Match comments, multi and single line */
+COMMENT \/\*[^]*?\*\/
+SINGLELINECOMMENT \/{2}[^\n]*\n
+%x c_comment
+%DIGIT [0-9]
 /* {DIGIT}+"."{DIGIT}*
  ID [a-z][a-z0-9]* */
 
