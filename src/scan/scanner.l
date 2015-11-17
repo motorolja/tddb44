@@ -41,7 +41,7 @@ FORBIDDEN [#%$]
 COMMENT \/\*[^]*?\*\/
 SINGLELINECOMMENT \/{2}[^\n]*\n
 %x c_comment
-%DIGIT [0-9]
+/*%DIGIT [0-9]*/
 /* {DIGIT}+"."{DIGIT}*
  ID [a-z][a-z0-9]* */
 
@@ -157,67 +157,67 @@ SINGLELINECOMMENT \/{2}[^\n]*\n
 
 
 of                       {
-                            
+                            return T_OF;
                          }
 if                       {
-                            
+                            return T_IF;
                          }
 do                       {
-                            
+                            return T_DO;
                          }
 or                       {
-                            
+                            return T_OR;
                          }
 var                      {
-                            
+                            return T_VAR;
                          }
 end                      {
-                            
+                            return T_END;
                          }
 and                      {
-                            
+                            return T_AND;
                          }
 div                      {
-                            
+                            return T_IDIV;
                          }
 mod                      {
-                            
+                            return T_MOD;
                          }
 not                      {
-                            
+                            return T_NOT;
                          }
 then                     {
-                            
+                            return T_THEN;
                          }
 else                     {
-                            
+                            return T_ELSE;
                          }
 const                    {
-                            
+                            return T_CONST;
                          }
 array                    {
-                            
+                            return T_ARRAY;
                          }
 begin                    {
-                            
+                            return T_BEGIN;
                          }
 while                    {
-                            
+                            return T_WHILE;
                          }
 elsif                    {
-                            
+                            return T_ELSIF;
                          }
 return                   {
-                            
+                            return T_RETURN;
                          }
 program                  {
-                            
+                            return T_PROGRAM;  
                          }
 function                 {
-                            
+                            return T_FUNCTION;
                          }
 procedure                {
-                            
+                            return T_PROCEDURE;
                          }
 
 
