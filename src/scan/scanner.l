@@ -11,7 +11,7 @@
 int column = 0;
 
 extern YYLTYPE yylloc; // Used for position information, see below.
-
+extern YYSTYPE yylval;
 %}
 
 %option yylineno
@@ -28,18 +28,26 @@ WS [ \t]+
 /* A single digit */
 DIGIT [0-9]
 
+/* Float */
+REAL {DIGIT}+\.{DIGIT}+
+
 /* Match any one standard alpha numeric ascii letter */
 ALPHA [a-zA-Z]
 
-/* Match the start of a (\") string to the ending (\"), allows empty strings */
-STRING \"[^\"^\n]*\"
+IDENTIFIER {ALPHA}({ALPHA}|{DIGIT}|\_)+
 
+/* Match the start of a (\") string to the ending (\"), allows empty strings */
+STRING1 \"[^\"^\n]*\"
+STRING2 \'[^\"^\n]*\'
+STRING {STRING1}|{STRING2}
 /* Match illegal characters */
 FORBIDDEN [#%$]
 
 /* Match comments, multi and single line */
 COMMENT \/\*[^]*?\*\/
 SINGLELINECOMMENT \/{2}[^\n]*\n
+
+OF of
 %x c_comment
 /*%DIGIT [0-9]*/
 /* {DIGIT}+"."{DIGIT}*
@@ -51,6 +59,11 @@ SINGLELINECOMMENT \/{2}[^\n]*\n
    following: Diesel comments, Diesel string constants, Diesel
    identifiers, integers, reals, and whitespace. */
 %%
+
+{WS}                       {
+                           column++;
+                         }  
+
 
 \.                       {
                             yylloc.first_line = yylineno;
@@ -154,77 +167,124 @@ SINGLELINECOMMENT \/{2}[^\n]*\n
                             column += yyleng;
                             return T_NOTEQ;
                          }
-
-
-of                       {
+of                 	 {
+                            column += 2;
                             return T_OF;
                          }
 if                       {
+                            column += 2;
                             return T_IF;
                          }
 do                       {
+                            column += 2;
                             return T_DO;
                          }
 or                       {
+                            column += 2;
                             return T_OR;
                          }
 var                      {
+                            column += 3;
                             return T_VAR;
                          }
 end                      {
+                            column += 3;
                             return T_END;
                          }
 and                      {
+                            column += 3;
                             return T_AND;
                          }
 div                      {
+                            column += 3;
                             return T_IDIV;
                          }
 mod                      {
+                            column += 3;
                             return T_MOD;
                          }
 not                      {
+                            column += 3;
                             return T_NOT;
                          }
 then                     {
+                            column += 4;
                             return T_THEN;
                          }
 else                     {
+                            column += 4;
                             return T_ELSE;
                          }
 const                    {
+                            column += 5;
                             return T_CONST;
                          }
 array                    {
+                            column += 5;
                             return T_ARRAY;
                          }
 begin                    {
+                            column += 5;
                             return T_BEGIN;
                          }
 while                    {
+                            column += 5;
                             return T_WHILE;
                          }
 elsif                    {
+                            column += 5;
                             return T_ELSIF;
                          }
 return                   {
+                            column += 6;
                             return T_RETURN;
                          }
 program                  {
+                            column += 7;
                             return T_PROGRAM;  
                          }
 function                 {
+                            column += 8;
                             return T_FUNCTION;
                          }
 procedure                {
+                            column += 9;
                             return T_PROCEDURE;
                          }
 
-
-\/\/.*$                  column = 0; /* Skip single-line comment */
+{INTEGER}		{
+				
+                           yylloc.first_line = yylineno;
+                           yylloc.last_line = yylineno;
+                           yylloc.first_column = column;
+                           yylloc.last_column = column + yyleng;
+                           yylval.pool_p = sym_tab->pool_install(yytext);//assign mattched string
+                           column += yyleng;
+			   return T_INTNUM;
+			}
+{IDENTIFIER}               {
+                           yylloc.first_line = yylineno;
+                           yylloc.last_line = yylineno;
+                           yylloc.first_column = column;
+                           yylloc.last_column = column + yyleng;
+                           yylval.pool_p = sym_tab->pool_install(yytext);//assign mattched string
+                           column += yyleng;
+                           return T_IDENT;
+                         }
+{REAL}                   {
+			   
+                           yylloc.first_line = yylineno;
+                           yylloc.last_line = yylineno;
+                           yylloc.first_column = column;
+                           yylloc.last_column = column + yyleng;
+                           yylval.pool_p = sym_tab->pool_install(yytext);//assign mattched string
+                           column += yyleng;
+                           return T_REALNUM;
+                         }
+{SINGLELINECOMMENT}        column = 0; /* Skip single-line comment */
 "/\*"                    {
-                            column += yyleng;
-                            BEGIN(c_comment);
+                           column += yyleng;
+                           BEGIN(c_comment);
                          }
 
 <c_comment>
@@ -237,8 +297,8 @@ procedure                {
                             column += 2;
                             yyerror("Suspicious comment");
                          }
-    [^\n]                column++; /* Skip stuff in comments */
-    \n                   column = 0;
+    [^\n^\r]                column++; /* Skip stuff in comments */
+    [\n\r]                   column = 0;
     <<EOF>>              {
                             yyerror("Unterminated comment");
                             yyterminate();
