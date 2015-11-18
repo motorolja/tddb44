@@ -23,13 +23,14 @@ DIGIT [0-9]
 EXP [Ee](\+|-)?{DIGIT}+
 REAL  ({DIGIT}+{EXP}|({DIGIT}*\.{DIGIT}+|{DIGIT}+\.{DIGIT}*){EXP}?)
 INTEGER {DIGIT}+
-STRING '([^\n^\r^']|'')+'
+STRING '([^\n\r']|'')+'
+INVALID_STRING '([^\n\r']|'')+\n
 
-NEWLINE [\n\r]+
+NEWLINE [\n\r]
 SINGLELINECOMMENT \/{2}[^\n]*
 START_MULTILINECOMMENT \{
 END_MULTILINECOMMENT \}
-NO_NEWLINE [^\n^\r]
+NO_NEWLINE [^\n\r]
 
 ALPHA [a-zA-Z]
 IDENTIFIER {ALPHA}({ALPHA}|{DIGIT}|\_)*
@@ -44,10 +45,9 @@ FORBIDDEN [#%$]
                            yylloc.last_line = yylineno;
                            yylloc.first_column = column;
                            yylloc.last_column = column + yyleng;
-                           //printf("|%s|", yytext);
                            yylval.ival = atol(yytext);
                            column += yyleng;
-			               return T_INTNUM;
+                            return T_INTNUM;
                         }
 
 {REAL}                  {
@@ -55,24 +55,26 @@ FORBIDDEN [#%$]
                            yylloc.last_line = yylineno;
                            yylloc.first_column = column;
                            yylloc.last_column = column + yyleng;
-                           //printf("|%s|", yytext);
                            yylval.rval = atof(yytext);
                            column += yyleng;
             			   return T_REALNUM;
                           
                         }
+{INVALID_STRING}        {
+                           column = 0;
+                           yyerror("Newline in string");
+                        }
+
 {STRING}                {
                            yylloc.first_line = yylineno;
                            yylloc.last_line = yylineno;
                            yylloc.first_column = column;
                            yylloc.last_column = column + yyleng;
-                           //printf("|%s|", yytext);
-                           // TODO cut first and last character of yytext and 
-                           // replace '' with '
-                           yylval.str = sym_tab->pool_install(yytext);
+                           yylval.str = sym_tab->pool_install(sym_tab->fix_string(yytext));
                            column += yyleng;
             			   return T_STRINGCONST;
                         }
+
 
 \.                      {
                             yylloc.first_line = yylineno;
@@ -307,16 +309,16 @@ procedure                {
                            yylloc.last_line = yylineno;
                            yylloc.first_column = column;
                            yylloc.last_column = column + yyleng;
-                           yylval.pool_p = sym_tab->pool_install(yytext);//assign mattched string
+                           yylval.pool_p = sym_tab->pool_install(sym_tab->capitalize(yytext));//assign mattched string
                            column += yyleng;
                            return T_IDENT;
                          }
 {WS}                     {
-                           //printf("WHit\n");
                            column++;
                          }
-{NEWLINE}|{SINGLELINECOMMENT}    column = 0;
-
+{NEWLINE}|{SINGLELINECOMMENT}    {
+                              column = 0;
+                         }
 {START_MULTILINECOMMENT} {
                             column += yyleng;
                             BEGIN(c_comment);
@@ -336,15 +338,13 @@ procedure                {
     {NEWLINE}                   column = 0;
     <<EOF>>              {
                             yyerror("Unterminated comment");
-                            yyterminate();
-                         }
+                          }
 }
 {FORBIDDEN}              {
                            yyerror("Forbidden character");
                          }
 <<EOF>>                  yyterminate();
 .                        {
-                           //printf("|%s|",yytext);
                            yyerror("Couldnt find matching token");
                           }
 
