@@ -19,7 +19,7 @@ sym_index integer_type;
 sym_index real_type;
 
 
-
+/*
 /*** The symbol_table class - watch out, it's big. ***/
 
 /* Constructor: allocates the data members. The symbol table itself is just
@@ -896,7 +896,17 @@ sym_index symbol_table::enter_procedure(position_information *pos,
 		const pool_index pool_p)
 {
 	/* Your code here */
-	return NULL_SYM;
+	//return NULL_SYM;
+    current_level++;
+    hash_index hashtable_index = symbol_table->hash();
+    pointer_hashtable = hash_table[hashtable_index];
+    if (pointer_hashtable == NULL){
+    }
+    else{
+       sym_table[pointer_hashstable]  
+             
+    }
+    hash_table[hashtable_index] = sym_pos+1;
 }
 
 
