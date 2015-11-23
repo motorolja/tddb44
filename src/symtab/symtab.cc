@@ -651,6 +651,8 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
 		const sym_type tag)
 {
 	/* Your code here */
+  
+
 	return 0; // Return index to the symbol we just created.
 }
 
@@ -897,16 +899,48 @@ sym_index symbol_table::enter_procedure(position_information *pos,
 {
 	/* Your code here */
 	//return NULL_SYM;
+  sym_index sym_p = install_symbol(pool_p, SYM_PROC);
+  function_symbol* func = sym_table[sym_p]->get_procedure_symbol();
+
+  // Make sure that it has not been decleared.
+  if (func->tag != SYM_UNDEF) {
+    type_error(pos) << "Redeclearation: " << func << endl;
+    return sym_p;
+  }
+
+  // Set up the function-specific fields
+  func->tag = SYM_PROC;
+  // Parameters are added later on
+  func->last_parameter = NULL;
+
+  // This will grow as local variables and temporaries are added.
+  func->ar_size = 0;
+  func->label_nr = get_next_label();
+
+  sym_table[sym_p] = func;
+
+  return sym_p;
+
+  /*
     current_level++;
-    hash_index hashtable_index = symbol_table->hash();
-    pointer_hashtable = hash_table[hashtable_index];
-    if (pointer_hashtable == NULL){
-    }
-    else{
-       sym_table[pointer_hashstable]  
-             
-    }
-    hash_table[hashtable_index] = sym_pos+1;
+
+  // get the pool index and feed it to the hash function
+  hash_index hashtable_index = hash(pool_p);
+  // get the value from the hash table at the hashed index
+  sym_index hashtable_value = hash_table[hashtable_index];
+
+  // If this is the first occurance of the hash value in the hash table
+  if (hashtable_value == NULL){
+    
+  }
+  // If there are other variables which has hashed to the same value
+  else{
+    sym_table[pointer_hashstable];
+
+  }
+  hash_table[hashtable_index] = sym_pos+1;
+  */
+
 }
 
 
