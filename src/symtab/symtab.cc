@@ -562,23 +562,30 @@ sym_index symbol_table::lookup_symbol(const pool_index pool_p)
 {
 	/* Your code here */
 	// get the pool index and feed it to the hash function
-    hash_index hashtable_index = hash(pool_p);
+  hash_index hashtable_index = hash(pool_p);
   // get the value from the hash table at the hashed index
-  sym_index hashtable_value = hash_table[hashtable_index];
+  sym_index table_value = hash_table[hashtable_index];
 
   // If this is the first occurance of the hash value in the hash table
-  if (hashtable_value == NULL){
-    
+  if (table_value == NULL){
+    return NULL_SYM;
   }
   // If there are other variables which has hashed to the same value
   else{
-    sym_table[pointer_hashstable];
+    // follow the hash links outwards and return the sought symbol
+    while (table_value != NULL) {
+      // If this is the sought symbol
+      if (sym_table[table_value].id == pool_p) {
+        return table_value;
+      }
+      // get next hash link
+      table_value = sym_table[table_value].hash_link;
+    }
 
   }
-  hash_table[hashtable_index] = sym_pos+1;
 
-
-  return NULL_SYM;
+  // Default case if no symbol was found 
+  return 0;
 }
 
 
