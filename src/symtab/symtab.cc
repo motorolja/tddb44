@@ -674,70 +674,71 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
 sym_index symbol_table::install_symbol(const pool_index pool_p,
 		const sym_type tag)
 {
-	index = lookup_symbol(pool_p);
-    if (index == NULL_SYM){
-    	char* pool_string = pool_lookup(pool_p);
-    	//TODO: derive somehow position information
-    	position_information *position = new position_information();
-        switch (tag){
-           case SYM_ARRAY: {
-               // TODO: derive somehow cardinality
-               int card findout_caridnality();
-               enter_array(position, pool_p, tag, card);
-               break;
-           }
-           case SYM_FUNC:
-           {
-               enter_function(position, pool_p);
-               break;
-           }
-           case SYM_PROC:
-           {
-               enter_procedure(position, pool_p);
-               break;
-           }
-           case SYM_VAR:
-           {
-               enter_variable(position, pool_p, tag);
-               break;
-           }
-           case  SYM_PARAM:
-           {
-               enter_param(position, pool_p, tag);
-               break;
-           }
-           case SYM_CONST:
-           {
-               //TODO: derivve somehow rval or ival
-               value = find_some_how_value_out(pool_p);
-               if (this is ival) {
-                   enter_constant(pos, pool_p, tag, rvalue);
-               }else{
-                   enter_constant(pos, pool_p, tag, ivalue);
-               }
-               break;
-           }
-           case SYM_NAMETYPE:
-           {
-               enter_nametype(pos, pool_p);
-               break;
-           }
-           case SYM_UNDEF:{
-               fatal("undefined symboltype");
-               break;
-           }
-           default:{
-               fatal("unknown symboltype");
-           }
-           }
-};
 
-    }
-    // Problem Symbol allready exists
-    else{
-        fatal("Symbol allready exists in Symboltable")
-    }
-	return 0; // Return index to the symbol we just created.
+  // If we exceded our limit
+  if (sym_pos >= MAX_SYM) {
+    fatal("MAX_SYM reached");
+  }
+
+  sym_index index = lookup_symbol(pool_p);
+  // If we allready have installed it
+  if (index != NULL_SYM) {
+    return index;
+  }
+
+  /*
+    pointer of base class for symbols,
+    makes it easier to handle all the different symbols
+    since subclasses can be represented by a base class pointer
+  */
+  symbol* new_symbol;
+
+  switch (tag) {
+  case SYM_ARRAY:
+    new_symbol = new array_symbol(pool_p);
+    break;
+  case SYM_FUNC:
+    new_symbol = new function_symbol(pool_p);
+    break;
+  case SYM_PROC:
+    new_symbol = new procedure_symbol(pool_p);
+    break;
+  case SYM_VAR:
+    new_symbol = new variable_symbol(pool_p);
+    break;
+  case  SYM_PARAM:
+    new_symbol = new parameter_symbol(pool_p);
+    break;
+  case SYM_CONST:
+    new_symbol = new constant_symbol(pool_p);
+    break;
+  case SYM_NAMETYPE:
+    new_symbol = new nametype_symbol(pool_p);
+    break;
+  case SYM_UNDEF:
+    fatal("undefined symboltype");
+    break;
+  default:
+    fatal("unknown symboltype");
+  }
+
+  // Update the global symbol pointer to point to the last entry
+  sym_pos++;
+
+  // get the hash value
+  hash_index new_hash = hash(pool_p);
+  // Fill the new symbol with known parameters
+  new_symbol->back_link = new_hash;
+  new_symbol->hash_link = hash_table[new_hash];
+  new_symbol->level = current_level;
+  // set the offset? need to lookup
+  // new_symbol->offset = ?;
+
+  // Update the hash table and the table containing symbol table
+  //hash_table[new_hash] =
+  //sym_table[]
+
+	return 0; // Return index to the symbol we just created
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
