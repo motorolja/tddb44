@@ -19,7 +19,7 @@ sym_index integer_type;
 sym_index real_type;
 
 
-/*
+
 /*** The symbol_table class - watch out, it's big. ***/
 
 /* Constructor: allocates the data members. The symbol table itself is just
@@ -585,7 +585,7 @@ sym_index symbol_table::lookup_symbol(const pool_index pool_p)
   }
 
   // Default case if no symbol was found 
-  return 0;
+  return NULL_SYM;
 }
 
 
@@ -674,9 +674,69 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
 sym_index symbol_table::install_symbol(const pool_index pool_p,
 		const sym_type tag)
 {
-	/* Your code here */
-  
+	index = lookup_symbol(pool_p);
+    if (index == NULL_SYM){
+    	char* pool_string = pool_lookup(pool_p);
+    	//TODO: derive somehow position information
+    	position_information *position = new position_information();
+        switch (tag){
+           case SYM_ARRAY: {
+               // TODO: derive somehow cardinality
+               int card findout_caridnality();
+               enter_array(position, pool_p, tag, card);
+               break;
+           }
+           case SYM_FUNC:
+           {
+               enter_function(position, pool_p);
+               break;
+           }
+           case SYM_PROC:
+           {
+               enter_procedure(position, pool_p);
+               break;
+           }
+           case SYM_VAR:
+           {
+               enter_variable(position, pool_p, tag);
+               break;
+           }
+           case  SYM_PARAM:
+           {
+               enter_param(position, pool_p, tag);
+               break;
+           }
+           case SYM_CONST:
+           {
+               //TODO: derivve somehow rval or ival
+               value = find_some_how_value_out(pool_p);
+               if (this is ival) {
+                   enter_constant(pos, pool_p, tag, rvalue);
+               }else{
+                   enter_constant(pos, pool_p, tag, ivalue);
+               }
+               break;
+           }
+           case SYM_NAMETYPE:
+           {
+               enter_nametype(pos, pool_p);
+               break;
+           }
+           case SYM_UNDEF:{
+               fatal("undefined symboltype");
+               break;
+           }
+           default:{
+               fatal("unknown symboltype");
+           }
+           }
+};
 
+    }
+    // Problem Symbol allready exists
+    else{
+        fatal("Symbol allready exists in Symboltable")
+    }
 	return 0; // Return index to the symbol we just created.
 }
 
