@@ -662,64 +662,68 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
 sym_index symbol_table::install_symbol(const pool_index pool_p,
 		const sym_type tag)
 {
-  // look wheter it exist in the symbol_table in out current scope
-	symbol_index lookedup_sym = lookup_symbol_plus(pool_p);
-  // if the symbol exist in out current scope 
-  // than we give back its index
-	if(lookedup_sym_index == NULL_SYM)
-	{
-	  symbol *new_symbol;
-    switch(tag) 
-    {
-      case SYM_ARRAY: {
-        new_symbol = array_symbol(pool_p);
-        break;
-      }
-      case SYM_FUNC: {
-        new_symbol = func_symbol(pool_p);
-        break;
-      }
-      case SYM_PROC: {
-        new_symbol = proc_symbol(pool_p);
-        break;
-      }
-      case SYM_VAR: {
-        new_symbol = var_symbol(pool_p);
-        break;
-      }
-      case SYM_PARAM: {
-        new_symbol = param_symbol(pool_p);
-        break;
-      }
-      case SYM_CONST: {
-        new_symbol = const_symbol(pool_p);
-        break;
-      }
-      case SYM_NAMETYPE: {
-        new_symbol = nametype_symbol(pool_p);
-        break;
-      }
-      case SYM_UNDEF: {
-        fatal("undefined symbol type");
-        break;
-      }
-      default:{
-        fatal("unknown symbol type");
-        break;
-      }
-    }
-    // set the hash_link of the symbol
-    hash_index hash_table_index = hash(pool_p);
-    sym->hash_link = hash_table[hash_table_index];
-    // increment the sym_pos because we will insert a new symbol
-    sym_pos++;
-    new_sym_pos = sym_pos;
-    sym_table[new_sym_pos] = &new_symbol;
-    hash_table[hash_table_index] = new_sym_pos;
-    return new_sym_pos;
-	}
-	else
-	  return lookedup_sym.symbol_index;
+  // If we exceded our limit
+  if (sym_pos >= MAX_SYM) {
+    fatal("MAX_SYM reached");
+  }
+
+  sym_index index = lookup_symbol(pool_p);
+  // If we allready have installed it
+  if (index != NULL_SYM) {
+    return index;
+  }
+
+  /*
+    pointer of base class for symbols,
+    makes it easier to handle all the different symbols
+    since subclasses can be represented by a base class pointer
+  */
+  symbol* new_symbol;
+
+  switch (tag) {
+  case SYM_ARRAY:
+    new_symbol = new array_symbol(pool_p);
+    break;
+  case SYM_FUNC:
+    new_symbol = new function_symbol(pool_p);
+    break;
+  case SYM_PROC:
+    new_symbol = new procedure_symbol(pool_p);
+    break;
+  case SYM_VAR:
+    new_symbol = new variable_symbol(pool_p);
+    break;
+  case  SYM_PARAM:
+    new_symbol = new parameter_symbol(pool_p);
+    break;
+  case SYM_CONST:
+    new_symbol = new constant_symbol(pool_p);
+    break;
+  case SYM_NAMETYPE:
+    new_symbol = new nametype_symbol(pool_p);
+    break;
+  case SYM_UNDEF:
+    fatal("undefined symboltype");
+    break;
+  default:
+    fatal("unknown symboltype");
+  }
+
+  // Update the global symbol pointer to point to the last entry
+  sym_pos++;
+
+  // get the hash value
+  hash_index new_hash = hash(pool_p);
+  // Fill the new symbol with known parameters
+  new_symbol->back_link = new_hash;
+  new_symbol->hash_link = hash_table[new_hash];
+  new_symbol->level = current_level;
+  // set the offset? need to lookup
+  // new_symbol->offset = ?;
+  new_sym_pos = sym_pos;
+  sym_table[new_sym_pos] = new_symbol;
+  hash_table[new_hash] = new_sym_pos;
+  return new_sym_pos;
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
