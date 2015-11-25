@@ -560,31 +560,19 @@ sym_index symbol_table::close_scope()
    follows hash links outwards. */
 sym_index symbol_table::lookup_symbol(const pool_index pool_p)
 {
-	/* Your code here */
 	// get the pool index and feed it to the hash function
-  hash_index hashtable_index = hash(pool_p);
+  hash_index hash_table_index = hash(pool_p);
   // get the value from the hash table at the hashed index
-  sym_index table_value = hash_table[hashtable_index];
-
-  // If this is the first occurance of the hash value in the hash table
-  if (table_value == NULL){
-    return NULL_SYM;
-  }
-  // If there are other variables which has hashed to the same value
-  else{
-    // follow the hash links outwards and return the sought symbol
-    while (table_value != NULL) {
-      // If this is the sought symbol
-      if (sym_table[table_value].id == pool_p) {
-        return table_value;
-      }
-      // get next hash link
-      table_value = sym_table[table_value].hash_link;
+  sym_index sym_table_index = hash_table[hash_table_index];
+  if(sym_table_index < block_table[current_level])
+    return sym_table_index;
+  
+  do {
+    if (pool_compare(sym_table[sym_table_index]->id,pool_p)){
+        return sym_table_index;
     }
-
-  }
-
-  // Default case if no symbol was found 
+    sym_table_index = sym_table[sym_table_index]->hash_link;
+  } while(sym_table_index != NULL_SYM);
   return NULL_SYM;
 }
 
@@ -674,70 +662,64 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
 sym_index symbol_table::install_symbol(const pool_index pool_p,
 		const sym_type tag)
 {
-	index = lookup_symbol(pool_p);
-    if (index == NULL_SYM){
-    	char* pool_string = pool_lookup(pool_p);
-    	//TODO: derive somehow position information
-    	position_information *position = new position_information();
-        switch (tag){
-           case SYM_ARRAY: {
-               // TODO: derive somehow cardinality
-               int card findout_caridnality();
-               enter_array(position, pool_p, tag, card);
-               break;
-           }
-           case SYM_FUNC:
-           {
-               enter_function(position, pool_p);
-               break;
-           }
-           case SYM_PROC:
-           {
-               enter_procedure(position, pool_p);
-               break;
-           }
-           case SYM_VAR:
-           {
-               enter_variable(position, pool_p, tag);
-               break;
-           }
-           case  SYM_PARAM:
-           {
-               enter_param(position, pool_p, tag);
-               break;
-           }
-           case SYM_CONST:
-           {
-               //TODO: derivve somehow rval or ival
-               value = find_some_how_value_out(pool_p);
-               if (this is ival) {
-                   enter_constant(pos, pool_p, tag, rvalue);
-               }else{
-                   enter_constant(pos, pool_p, tag, ivalue);
-               }
-               break;
-           }
-           case SYM_NAMETYPE:
-           {
-               enter_nametype(pos, pool_p);
-               break;
-           }
-           case SYM_UNDEF:{
-               fatal("undefined symboltype");
-               break;
-           }
-           default:{
-               fatal("unknown symboltype");
-           }
-           }
-};
-
+  // look wheter it exist in the symbol_table in out current scope
+	symbol_index lookedup_sym = lookup_symbol_plus(pool_p);
+  // if the symbol exist in out current scope 
+  // than we give back its index
+	if(lookedup_sym_index == NULL_SYM)
+	{
+	  symbol *new_symbol;
+    switch(tag) 
+    {
+      case SYM_ARRAY: {
+        new_symbol = array_symbol(pool_p);
+        break;
+      }
+      case SYM_FUNC: {
+        new_symbol = func_symbol(pool_p);
+        break;
+      }
+      case SYM_PROC: {
+        new_symbol = proc_symbol(pool_p);
+        break;
+      }
+      case SYM_VAR: {
+        new_symbol = var_symbol(pool_p);
+        break;
+      }
+      case SYM_PARAM: {
+        new_symbol = param_symbol(pool_p);
+        break;
+      }
+      case SYM_CONST: {
+        new_symbol = const_symbol(pool_p);
+        break;
+      }
+      case SYM_NAMETYPE: {
+        new_symbol = nametype_symbol(pool_p);
+        break;
+      }
+      case SYM_UNDEF: {
+        fatal("undefined symbol type");
+        break;
+      }
+      default:{
+        fatal("unknown symbol type");
+        break;
+      }
     }
-    // Problem Symbol allready exists
-    else{
-        fatal("Symbol allready exists in Symboltable")
-    }
-	return 0; // Return index to the symbol we just created.
+    // set the hash_link of the symbol
+    hash_index hash_table_index = hash(pool_p);
+    sym->hash_link = hash_table[hash_table_index];
+    // increment the sym_pos because we will insert a new symbol
+    sym_pos++;
+    new_sym_pos = sym_pos;
+    sym_table[new_sym_pos] = &new_symbol;
+    hash_table[hash_table_index] = new_sym_pos;
+    return new_sym_pos;
+	}
+	else
+	  return lookedup_sym.symbol_index;
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
