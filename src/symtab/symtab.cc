@@ -548,8 +548,15 @@ void symbol_table::open_scope()
 /* Decrease the current_level by one. Return sym_index to new environment. */
 sym_index symbol_table::close_scope()
 {
-	/* Your code here */
-	return NULL_SYM;
+  for(sym_index i = sym_pos; i > current_environment(); i--){
+    hash_table[sym_table[i]->back_link] = sym_table[i]->hash_link;
+  }
+  
+  block_table[current_level] = 0;
+  current_level--;
+  
+  /* Your code here */
+  return NULL_SYM;
 }
 
 
@@ -669,7 +676,8 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
 
   sym_index index = lookup_symbol(pool_p);
   // If we allready have installed it
-  if (index != NULL_SYM) {
+  if (index != NULL_SYM && sym_table[index]->level >= current_environment()) 
+  {
     return index;
   }
 
@@ -718,9 +726,10 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
   new_symbol->back_link = new_hash;
   new_symbol->hash_link = hash_table[new_hash];
   new_symbol->level = current_level;
+  new_symbol->offset = 0;
   // set the offset? need to lookup
   // new_symbol->offset = ?;
-  new_sym_pos = sym_pos;
+  sym_index new_sym_pos = sym_pos;
   sym_table[new_sym_pos] = new_symbol;
   hash_table[new_hash] = new_sym_pos;
   return new_sym_pos;
@@ -970,7 +979,7 @@ sym_index symbol_table::enter_procedure(position_information *pos,
 	/* Your code here */
 	//return NULL_SYM;
   sym_index sym_p = install_symbol(pool_p, SYM_PROC);
-  function_symbol* func = sym_table[sym_p]->get_procedure_symbol();
+  procedure_symbol* func = sym_table[sym_p]->get_procedure_symbol();
 
   // Make sure that it has not been decleared.
   if (func->tag != SYM_UNDEF) {
