@@ -4,7 +4,7 @@
 #include "error.hh"
 
 // Set this #define to 0 after the scanner works.
-#define TEST_SCANNER 1
+#define TEST_SCANNER 0
 
 /* Just to make the code more readable. Not true new types like in Pascal. */
 typedef long pool_index;
@@ -129,7 +129,7 @@ public:
     sym_index hash_link;
 
     // Link back to the hash table.
-    sym_index back_link;
+    hash_index back_link;
 
     // Current block level, ie, nesting depth.
     block_level level;
