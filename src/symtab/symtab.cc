@@ -548,8 +548,15 @@ void symbol_table::open_scope()
 /* Decrease the current_level by one. Return sym_index to new environment. */
 sym_index symbol_table::close_scope()
 {
-	/* Your code here */
-	return NULL_SYM;
+  for(sym_index i = sym_pos; i > current_environment(); i--){
+    hash_table[sym_table[i]->back_link] = sym_table[i]->hash_link;
+  }
+  
+  block_table[current_level] = 0;
+  current_level--;
+  
+  /* Your code here */
+  return NULL_SYM;
 }
 
 
@@ -560,8 +567,20 @@ sym_index symbol_table::close_scope()
    follows hash links outwards. */
 sym_index symbol_table::lookup_symbol(const pool_index pool_p)
 {
-	/* Your code here */
-	return NULL_SYM;
+	// get the pool index and feed it to the hash function
+  hash_index hash_table_index = hash(pool_p);
+  // get the value from the hash table at the hashed index
+  sym_index sym_table_index = hash_table[hash_table_index];
+  if(sym_table_index < block_table[current_level])
+    return sym_table_index;
+  
+  do {
+    if (pool_compare(sym_table[sym_table_index]->id,pool_p)){
+        return sym_table_index;
+    }
+    sym_table_index = sym_table[sym_table_index]->hash_link;
+  } while(sym_table_index != NULL_SYM);
+  return NULL_SYM;
 }
 
 
@@ -650,8 +669,70 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
 sym_index symbol_table::install_symbol(const pool_index pool_p,
 		const sym_type tag)
 {
-	/* Your code here */
-	return 0; // Return index to the symbol we just created.
+  // If we exceded our limit
+  if (sym_pos >= MAX_SYM) {
+    fatal("MAX_SYM reached");
+  }
+
+  sym_index index = lookup_symbol(pool_p);
+  // If we allready have installed it
+  if (index != NULL_SYM && sym_table[index]->level >= current_environment()) 
+  {
+    return index;
+  }
+
+  /*
+    pointer of base class for symbols,
+    makes it easier to handle all the different symbols
+    since subclasses can be represented by a base class pointer
+  */
+  symbol* new_symbol;
+
+  switch (tag) {
+  case SYM_ARRAY:
+    new_symbol = new array_symbol(pool_p);
+    break;
+  case SYM_FUNC:
+    new_symbol = new function_symbol(pool_p);
+    break;
+  case SYM_PROC:
+    new_symbol = new procedure_symbol(pool_p);
+    break;
+  case SYM_VAR:
+    new_symbol = new variable_symbol(pool_p);
+    break;
+  case  SYM_PARAM:
+    new_symbol = new parameter_symbol(pool_p);
+    break;
+  case SYM_CONST:
+    new_symbol = new constant_symbol(pool_p);
+    break;
+  case SYM_NAMETYPE:
+    new_symbol = new nametype_symbol(pool_p);
+    break;
+  case SYM_UNDEF:
+    fatal("undefined symboltype");
+    break;
+  default:
+    fatal("unknown symboltype");
+  }
+
+  // Update the global symbol pointer to point to the last entry
+  sym_pos++;
+
+  // get the hash value
+  hash_index new_hash = hash(pool_p);
+  // Fill the new symbol with known parameters
+  new_symbol->back_link = new_hash;
+  new_symbol->hash_link = hash_table[new_hash];
+  new_symbol->level = current_level;
+  new_symbol->offset = 0;
+  // set the offset? need to lookup
+  // new_symbol->offset = ?;
+  sym_index new_sym_pos = sym_pos;
+  sym_table[new_sym_pos] = new_symbol;
+  hash_table[new_hash] = new_sym_pos;
+  return new_sym_pos;
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
@@ -896,7 +977,49 @@ sym_index symbol_table::enter_procedure(position_information *pos,
 		const pool_index pool_p)
 {
 	/* Your code here */
-	return NULL_SYM;
+	//return NULL_SYM;
+  sym_index sym_p = install_symbol(pool_p, SYM_PROC);
+  procedure_symbol* func = sym_table[sym_p]->get_procedure_symbol();
+
+  // Make sure that it has not been decleared.
+  if (func->tag != SYM_UNDEF) {
+    type_error(pos) << "Redeclearation: " << func << endl;
+    return sym_p;
+  }
+
+  // Set up the function-specific fields
+  func->tag = SYM_PROC;
+  // Parameters are added later on
+  func->last_parameter = NULL;
+
+  // This will grow as local variables and temporaries are added.
+  func->ar_size = 0;
+  func->label_nr = get_next_label();
+
+  sym_table[sym_p] = func;
+
+  return sym_p;
+
+  /*
+    current_level++;
+
+  // get the pool index and feed it to the hash function
+  hash_index hashtable_index = hash(pool_p);
+  // get the value from the hash table at the hashed index
+  sym_index hashtable_value = hash_table[hashtable_index];
+
+  // If this is the first occurance of the hash value in the hash table
+  if (hashtable_value == NULL){
+    
+  }
+  // If there are other variables which has hashed to the same value
+  else{
+    sym_table[pointer_hashstable];
+
+  }
+  hash_table[hashtable_index] = sym_pos+1;
+  */
+
 }
 
 

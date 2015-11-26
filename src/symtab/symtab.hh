@@ -129,7 +129,7 @@ public:
     sym_index hash_link;
 
     // Link back to the hash table.
-    sym_index back_link;
+    hash_index back_link;
 
     // Current block level, ie, nesting depth.
     block_level level;
