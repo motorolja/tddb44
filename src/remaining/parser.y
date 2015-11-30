@@ -182,7 +182,7 @@ prog_head       : T_PROGRAM T_IDENT
                     char *bla = sym_tab->pool_lookup($2);
                     printf("%s",bla);
 
-                    
+
 
                     sym_tab->open_scope();
                 }
@@ -210,7 +210,7 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                                              integer_type,
                                              $3->value);
                     ast_id *this_one = new ast_id(this_pos, dex);
-                    
+
                 }
                 | T_IDENT T_EQ real T_SEMICOLON
                 {
@@ -237,10 +237,10 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                     position_information *this_pos = new position_information(
                                                          @1.first_line, 
                                                          @1.first_column);
+
                     sym_index strange_const = $3->sym_p;
-                    
                     symbol *strange_symbol = sym_tab->get_symbol(strange_const);
-                    
+
                     if (strange_symbol->type == integer_type){
                         const long const_int_val = dynamic_cast<constant_symbol*>(strange_symbol)->const_value.ival;
                         sym_index dex = sym_tab->enter_constant(this_pos,
@@ -256,13 +256,12 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                                                  real_type,
                                                  const_real_val);
                     }else{
-                        // add some errormaessage
+                      // add some errormaessage
+                      type_error(this_pos) << "Invalid symbol type detected: "
+                                           << yytext << endl << flush;
                     }
-                       
 
-                    
                 }
-                
                 ;
 
 
@@ -620,7 +619,7 @@ rvariable       : rvar_id
                 {
                     /* Your code here */
                 }
-                
+
                 ;
 
 
@@ -776,7 +775,7 @@ factor          : rvariable
                 {
                     /* Your code here */
                 }
-                
+
                 ;
 
 
