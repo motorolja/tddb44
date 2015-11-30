@@ -179,7 +179,11 @@ prog_decl       : prog_head T_SEMICOLON const_part variable_part
 
 prog_head       : T_PROGRAM T_IDENT
                 {
-                    /* Your code here */
+                    char *bla = sym_tab->pool_lookup($2);
+                    printf("%s",bla);
+
+                    
+
                     sym_tab->open_scope();
                 }
                 ;
@@ -198,11 +202,25 @@ const_decls     : const_decl
 
 const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                 {
-                    /* Your code here */
+                    position_information *this_pos = new position_information(
+                                                         @1.first_line, 
+                                                         @1.first_column);
+                    sym_index dex = sym_tab->enter_constant(this_pos,
+                                             $1,
+                                             integer_type,
+                                             $3->value);
+                    ast_id *this_one = new ast_id(this_pos, dex);
+                    
                 }
                 | T_IDENT T_EQ real T_SEMICOLON
                 {
-                    /* Your code here */
+                    position_information *this_pos = new position_information(
+                                                         @1.first_line, 
+                                                         @1.first_column);
+                    sym_index dex = sym_tab->enter_constant(this_pos,
+                                             $1,
+                                             real_type,
+                                             $3->value);
                 }
                 | T_IDENT T_EQ T_STRINGCONST T_SEMICOLON
                 {
@@ -216,7 +234,33 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                     // constant foo = 5;
                     // constant bar = foo;
                     // ...now, why would anyone want to do that?
-                    /* Your code here */
+                    position_information *this_pos = new position_information(
+                                                         @1.first_line, 
+                                                         @1.first_column);
+                    sym_index strange_const = $3->sym_p;
+                    
+                    symbol *strange_symbol = sym_tab->get_symbol(strange_const);
+                    
+                    if (strange_symbol->type == integer_type){
+                        const long const_int_val = dynamic_cast<constant_symbol*>(strange_symbol)->const_value.ival;
+                        sym_index dex = sym_tab->enter_constant(this_pos,
+                                                 $1,
+                                                 integer_type,
+                                                 const_int_val);
+                    }
+                    else if (strange_symbol->type == real_type){
+                        const double const_real_val = dynamic_cast<constant_symbol*>(strange_symbol)
+                                        ->const_value.rval;
+                        sym_index dex = sym_tab->enter_constant(this_pos,
+                                                 $1,
+                                                 real_type,
+                                                 const_real_val);
+                    }else{
+                        // add some errormaessage
+                    }
+                       
+
+                    
                 }
                 
                 ;
@@ -503,6 +547,7 @@ param           : T_IDENT T_COLON type_id
 
 comp_stmt       : T_BEGIN stmt_list T_END
                 {
+                    
                     /* Your code here */
                 }
                 ;
