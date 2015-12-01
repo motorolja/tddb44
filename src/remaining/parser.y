@@ -282,7 +282,8 @@ var_decls       : var_decl
 
 var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                 {
-                    // normal variable
+                  // normal variable
+                  /*
                     position_information *var_decl_pos = new position_information(
                                     @1.first_line, 
                                     @1.first_column); 
@@ -290,17 +291,20 @@ var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                     sym_index dex = sym_tab->enter_variable(var_decl_pos,
                                     $1,
                                     $3->sym_p);
+                  */
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET integer T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
-                    /* Array declaration */
+                  /* Array declaration */
+                  /*
                     position_information *var_decl_pos = new position_information(
                                     @1.first_line, 
                                     @1.first_column);
                     sym_index dex = sym_tab->enter_array(var_decl_pos,
                                     $1,
                                     $8->sym_p,
-                                    $5->value);
+                                                         $5->value);
+                    */
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET const_id T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
