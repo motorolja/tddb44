@@ -238,23 +238,24 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                                                          @1.first_line, 
                                                          @1.first_column);
 
-                    sym_index strange_const = $3->sym_p;
-                    constant_symbol *strange_symbol = dynamic_cast<constant_symbol*>(sym_tab->get_symbol(strange_const));
-                    if (constant_symbol == nullptr ) {
+                    sym_index const_index = $3->sym_p;
+                    constant_symbol *const_symbol = dynamic_cast<constant_symbol*>
+                        (sym_tab->get_symbol(const_index));
+                    if (const_symbol == nullptr ) {
                       type_error(this_pos) << "Non constant symbol called for constant symbols"
                                            << yytext << endl << flush;
                     }
 
 
-                    if (strange_symbol->type == integer_type){
-                        const long const_int_val = strange_symbol->const_value.ival;
+                    if (const_symbol->type == integer_type){
+                        const long const_int_val = const_symbol->const_value.ival;
                         sym_index dex = sym_tab->enter_constant(this_pos,
                                                  $1,
                                                  integer_type,
                                                  const_int_val);
                     }
-                    else if (strange_symbol->type == real_type){
-                        const double const_real_val = strange_symbol->const_value.rval;
+                    else if (const_symbol->type == real_type){
+                        const double const_real_val = const_symbol->const_value.rval;
                         sym_index dex = sym_tab->enter_constant(this_pos,
                                                  $1,
                                                  real_type,
@@ -281,18 +282,25 @@ var_decls       : var_decl
 
 var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                 {
+                    // normal variable
                     position_information *var_decl_pos = new position_information(
                                     @1.first_line, 
-                                    @1.first_column);  
+                                    @1.first_column); 
 
                     sym_index dex = sym_tab->enter_variable(var_decl_pos,
-		                            $1,
+                                    $1,
                                     $3->sym_p);
-
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET integer T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
-                    /* Your code here */
+                    /* Array declaration */
+                    position_information *var_decl_pos = new position_information(
+                                    @1.first_line, 
+                                    @1.first_column);
+                    sym_index dex = sym_tab->enter_array(var_decl_pos,
+                                    $1,
+                                    $8->sym_p,
+                                    $5->value);
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET const_id T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
@@ -513,7 +521,7 @@ func_head       : T_FUNCTION T_IDENT
 
 opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 {
-                    /* Your code here */
+                    //maybee something with ast
                 }
                 | T_LEFTPAR error T_RIGHTPAR
                 {
