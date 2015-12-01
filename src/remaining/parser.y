@@ -239,18 +239,22 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                                                          @1.first_column);
 
                     sym_index strange_const = $3->sym_p;
-                    symbol *strange_symbol = sym_tab->get_symbol(strange_const);
+                    constant_symbol *strange_symbol = dynamic_cast<constant_symbol*>(sym_tab->get_symbol(strange_const));
+                    if (constant_symbol == nullptr ) {
+                      type_error(this_pos) << "Non constant symbol called for constant symbols"
+                                           << yytext << endl << flush;
+                    }
+
 
                     if (strange_symbol->type == integer_type){
-                        const long const_int_val = dynamic_cast<constant_symbol*>(strange_symbol)->const_value.ival;
+                        const long const_int_val = strange_symbol->const_value.ival;
                         sym_index dex = sym_tab->enter_constant(this_pos,
                                                  $1,
                                                  integer_type,
                                                  const_int_val);
                     }
                     else if (strange_symbol->type == real_type){
-                        const double const_real_val = dynamic_cast<constant_symbol*>(strange_symbol)
-                                        ->const_value.rval;
+                        const double const_real_val = strange_symbol->const_value.rval;
                         sym_index dex = sym_tab->enter_constant(this_pos,
                                                  $1,
                                                  real_type,
