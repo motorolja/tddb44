@@ -626,24 +626,41 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 }
                 | proc_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                 {
-                    /* Your code here */
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+                    $$ = new ast_procedurecall(pos,
+                            $1,
+                            $3);
                 }
                 | lvariable T_ASSIGN expr
                 {
-                    /* Your code here */
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+                    $$ = new ast_assign(pos,
+                            $1,
+                            $3);
                 }
                 | T_RETURN expr
                 {
-                    /* Your code here */
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+                    $$ = new ast_return(pos,
+                            $2);
                 }
                 | T_RETURN
                 {
-                    /* Your code here */
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+                    $$ = new ast_return(pos);
                 }
                 
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
