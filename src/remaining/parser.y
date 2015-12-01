@@ -282,7 +282,8 @@ var_decls       : var_decl
 
 var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                 {
-                    // normal variable
+                  // normal variable
+                  /*
                     position_information *var_decl_pos = new position_information(
                                     @1.first_line, 
                                     @1.first_column); 
@@ -290,17 +291,20 @@ var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                     sym_index dex = sym_tab->enter_variable(var_decl_pos,
                                     $1,
                                     $3->sym_p);
+                  */
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET integer T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
-                    /* Array declaration */
+                  /* Array declaration */
+                  /*
                     position_information *var_decl_pos = new position_information(
                                     @1.first_line, 
                                     @1.first_column);
                     sym_index dex = sym_tab->enter_array(var_decl_pos,
                                     $1,
                                     $8->sym_p,
-                                    $5->value);
+                                                         $5->value);
+                    */
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET const_id T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
@@ -473,7 +477,7 @@ proc_decl       : proc_head opt_param_list T_SEMICOLON const_part variable_part
 func_decl       : func_head opt_param_list T_COLON type_id T_SEMICOLON const_part variable_part
                 {
                     /* Your code here */
-                  $$ = $1;
+                    $$  = $1;
                 }
                 ;
 
@@ -523,6 +527,8 @@ func_head       : T_FUNCTION T_IDENT
 opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 {
                     //maybee something with ast
+                    /* Your code here */
+                    $$ = $2;
                 }
                 | T_LEFTPAR error T_RIGHTPAR
                 {
@@ -531,6 +537,7 @@ opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 | /* empty */
                 {
                     /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
@@ -568,6 +575,10 @@ comp_stmt       : T_BEGIN stmt_list T_END
                 {
                     
                     /* Your code here */
+                    //ast_stmt_list* bla = $2;
+                    //printf("%d", bla->tag);
+                    $$ = $2;
+                    
                 }
                 ;
 
@@ -575,21 +586,43 @@ comp_stmt       : T_BEGIN stmt_list T_END
 stmt_list       : stmt
                 {
                     /* Your code here */
+                    
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+                    $$ = new ast_stmt_list(pos, $1);
                 }
                 | stmt_list T_SEMICOLON stmt
                 {
                     /* Your code here */
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+                    $$ = new ast_stmt_list(pos,$3,$1); 
                 }
                 ;
 
 
 stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 {
-                    /* Your code here */
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+
+                    $$ = new ast_if(pos,
+                           $2,
+                           $4,
+                           $5,
+                           $6);
                 }
                 | T_WHILE expr T_DO stmt_list T_END
                 {
-                    /* Your code here */
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+                    $$ = new ast_while(pos,
+                            $2,
+                            $4);
                 }
                 | proc_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                 {
