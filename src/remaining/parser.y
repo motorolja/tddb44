@@ -287,7 +287,7 @@ var_decls       : var_decl
 var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                 {
                     // normal variable
-                    position_information *var_decl_pos = new position_information(
+                    position_information *pos = new position_information(
                                     @1.first_line, 
                                     @1.first_column);
                     sym_index dex = sym_tab->enter_variable(pos,
