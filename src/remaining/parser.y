@@ -179,10 +179,14 @@ prog_decl       : prog_head T_SEMICOLON const_part variable_part
 
 prog_head       : T_PROGRAM T_IDENT
                 {
-                    char *bla = sym_tab->pool_lookup($2);
-                    printf("%s",bla);
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
 
+                    sym_index prog_index = sym_tab->enter_procedure(pos, $2);
 
+                    $$ = new ast_procedurehead(pos,
+                            prog_index);
 
                     sym_tab->open_scope();
                 }
@@ -282,29 +286,24 @@ var_decls       : var_decl
 
 var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                 {
-                  // normal variable
-                  /*
+                    // normal variable
                     position_information *var_decl_pos = new position_information(
                                     @1.first_line, 
-                                    @1.first_column); 
-
-                    sym_index dex = sym_tab->enter_variable(var_decl_pos,
+                                    @1.first_column);
+                    sym_index dex = sym_tab->enter_variable(pos,
                                     $1,
                                     $3->sym_p);
-                  */
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET integer T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
-                  /* Array declaration */
-                  /*
+                    /* Array declaration */
                     position_information *var_decl_pos = new position_information(
                                     @1.first_line, 
                                     @1.first_column);
                     sym_index dex = sym_tab->enter_array(var_decl_pos,
                                     $1,
                                     $8->sym_p,
-                                                         $5->value);
-                    */
+                                    $5->value);
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET const_id T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
@@ -574,8 +573,6 @@ comp_stmt       : T_BEGIN stmt_list T_END
                 {
                     
                     /* Your code here */
-                    //ast_stmt_list* bla = $2;
-                    //printf("%d", bla->tag);
                     $$ = $2;
                     
                 }
@@ -585,19 +582,28 @@ comp_stmt       : T_BEGIN stmt_list T_END
 stmt_list       : stmt
                 {
                     /* Your code here */
-                    
-                    position_information *pos =
-                        new position_information(@1.first_line,
+                    if($1 == NULL){
+                        $$ = NULL;
+                    }
+                    else {
+                        position_information *pos =
+                            new position_information(@1.first_line,
                                                  @1.first_column);
-                    $$ = new ast_stmt_list(pos, $1);
+                        $$ = new ast_stmt_list(pos, $1, NULL);
+                    }
                 }
                 | stmt_list T_SEMICOLON stmt
                 {
-                    /* Your code here */
-                    position_information *pos =
-                        new position_information(@1.first_line,
-                                                 @1.first_column);
-                    $$ = new ast_stmt_list(pos,$3,$1); 
+
+                    if($3 == NULL){
+                        $$ = $1;
+                    }
+                    else{
+                        position_information *pos =
+                            new position_information(@1.first_line,
+                                                     @1.first_column);
+                        $$ = new ast_stmt_list(pos,$3,$1);
+                    }
                 }
                 ;
 
@@ -912,7 +918,6 @@ func_call       : func_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                     $$ = new ast_functioncall(pos,
                             $1,
                             $3);
-                    $$->type = sym_tab->get_symbol_type($1->sym_p);
                 }
                 ;
 
