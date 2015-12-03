@@ -274,8 +274,22 @@ sym_index ast_mod::type_check()
    the same way. They all return integer types, 1 = true, 0 = false. */
 sym_index semantic::check_binrel(ast_binaryrelation *node)
 {
-    /* Your code here */
-    return void_type;
+    // only return interger type; 
+    sym_index left_type = node->left->type_check(); 
+    sym_index right_type = node->right->type_check();
+    if (left_type != right_type){
+        if(left_type == integer_type){
+            // insert casting to real_type
+            ast_cast *casted = new ast_cast(node->left->pos, node->left);
+            node->left = casted;
+        }
+        if(right_type == integer_type){
+            // insert casting to real_type
+            ast_cast *casted = new ast_cast(node->right->pos, node->right);
+            node->left = casted;
+        }
+    }
+    return integer_type;   
 }
 
 sym_index ast_equal::type_check()
