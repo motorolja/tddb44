@@ -280,26 +280,22 @@ sym_index semantic::check_binrel(ast_binaryrelation *node)
 
 sym_index ast_equal::type_check()
 {
-    /* Your code here */
-    return void_type;
+  return type_checker->check_binrel(this);
 }
 
 sym_index ast_notequal::type_check()
 {
-    /* Your code here */
-    return void_type;
+  return type_checker->check_binrel(this);
 }
 
 sym_index ast_lessthan::type_check()
 {
-    /* Your code here */
-    return void_type;
+  return type_checker->check_binrel(this);
 }
 
 sym_index ast_greaterthan::type_check()
 {
-    /* Your code here */
-    return void_type;
+  return type_checker->check_binrel(this);
 }
 
 
@@ -315,8 +311,9 @@ sym_index ast_procedurecall::type_check()
 
 sym_index ast_assign::type_check()
 {
-    /* Your code here */
-    return void_type;
+  /* Your code here */
+
+  return void_type;
 }
 
 
