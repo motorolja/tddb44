@@ -48,10 +48,47 @@ bool semantic::chk_param(ast_id *env,
 
 
 /* Check formal vs. actual parameters at procedure/function calls. */
+// itterativ solution
 void semantic::check_parameters(ast_id *call_id,
                                 ast_expr_list *param_list)
 {
-    /* Your code here */
+    parameter_symbol *def_param = dynamic_cast<parameter_symbol*>
+                                    (sym_tab->get_symbol(call_id->sym_p));
+    ast_expr_list *given_param = param_list;
+
+    sym_index def_param_type, given_param_type;
+    while(def_param != NULL && given_param != NULL){
+        def_param_type = def_param->type;
+        given_param_type = given_param->last_expr->type_check();
+        if(def_param_type != given_param_type){
+        // some problem
+            if(def_param_type == real_type && given_param_type == integer_type){
+                // lets cast it
+                ast_cast *casted = new ast_cast(given_param->last_expr->pos,
+                                        given_param->last_expr);
+                given_param->last_expr = casted;
+            }
+            else{
+                // TODO: say something what did not matched!
+                string error_message = "parameter not be matched expected given \n";
+                type_error(given_param->pos) << error_message;
+            }
+        }
+        def_param = def_param->preceding;
+        given_param = given_param->preceding;
+    }
+    if(def_param != NULL){
+        //error to many arguments
+        string error_message = "to many parameters given \n";
+        type_error(given_param->pos) << error_message;
+
+    }
+    if(given_param != NULL){
+        // error to few arguments
+        string error_message = "to few parameters given \n";
+        type_error(given_param->pos) << error_message;
+
+    }
 }
 
 
