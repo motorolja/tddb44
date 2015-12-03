@@ -702,6 +702,16 @@ rvariable       : rvar_id
 
 elsif_list      : elsif_list elsif
                 {
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+
+                    if ($1 == NULL){
+                        $$ = new ast_elsif_list(pos, $2);
+                    }
+                    else{
+                        $$ = new ast_elsif_list(pos, $2, $1);
+                    }
                     
                 }
                 | /* empty */
