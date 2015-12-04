@@ -42,19 +42,8 @@ bool semantic::chk_param(ast_id *env,
                         parameter_symbol *formals,
                         ast_expr_list *actuals)
 {
-    /* Your code here */
-    return true;
-}
-
-
-/* Check formal vs. actual parameters at procedure/function calls. */
-// itterativ solution
-void semantic::check_parameters(ast_id *call_id,
-                                ast_expr_list *param_list)
-{
-    parameter_symbol *def_param = dynamic_cast<parameter_symbol*>
-                                    (sym_tab->get_symbol(call_id->sym_p));
-    ast_expr_list *given_param = param_list;
+    parameter_symbol *def_param = formals;
+    ast_expr_list *given_param = actuals;
 
     sym_index def_param_type, given_param_type;
     while(def_param != NULL && given_param != NULL){
@@ -72,6 +61,7 @@ void semantic::check_parameters(ast_id *call_id,
                 // TODO: say something what did not matched!
                 string error_message = "parameter not be matched expected given \n";
                 type_error(given_param->pos) << error_message;
+                return false;
             }
         }
         def_param = def_param->preceding;
@@ -80,15 +70,27 @@ void semantic::check_parameters(ast_id *call_id,
     if(def_param != NULL){
         //error to many arguments
         string error_message = "to many parameters given \n";
-        type_error(given_param->pos) << error_message;
-
+        fatal(error_message);
+        return false;
     }
     if(given_param != NULL){
         // error to few arguments
         string error_message = "to few parameters given \n";
-        type_error(given_param->pos) << error_message;
-
+        fatal(error_message);
+        return false;
     }
+    return true;
+}
+
+
+/* Check formal vs. actual parameters at procedure/function calls. */
+// itterativ solution
+void semantic::check_parameters(ast_id *call_id,
+                                ast_expr_list *param_list)
+{
+    parameter_symbol *def_param = dynamic_cast<parameter_symbol*>
+                                (sym_tab->get_symbol(call_id->sym_p));
+    chk_param(call_id, def_param, param_list);
 }
 
 
@@ -355,7 +357,8 @@ sym_index ast_greaterthan::type_check()
 
 sym_index ast_procedurecall::type_check()
 {
-    /* Your code here */
+    //check wether the parameters are the same as bla????
+    type_checker->check_parameters(id, parameter_list);
     return void_type;
 }
 
