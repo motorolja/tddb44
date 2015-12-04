@@ -246,7 +246,7 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                     constant_symbol *const_symbol = dynamic_cast<constant_symbol*>
                         (sym_tab->get_symbol(const_index));
                     if (const_symbol == nullptr ) {
-                      type_error(this_pos) << "Non constant symbol called for constant symbols"
+                      type_error(this_pos) << ErrorMap[SYMBOL_CAST]
                                            << yytext << endl << flush;
                     }
 
@@ -266,7 +266,7 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                                                  const_real_val);
                     }else{
                       // add some errormaessage
-                      type_error(this_pos) << "Invalid symbol type detected: "
+                      type_error(this_pos) << ErrorMap[INVALID_SYMBOL]
                                            << yytext << endl << flush;
                     }
 

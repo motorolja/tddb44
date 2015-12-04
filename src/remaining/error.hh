@@ -5,6 +5,8 @@
 #include <sstream>
 #include <ostream>
 
+#include "error_messages.hh"
+
 using namespace std;
 
 
