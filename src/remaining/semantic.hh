@@ -30,6 +30,8 @@ public:
     // one for binary_relations, one for conditions (new abstract ast_node?),
     // one for expressions that aren't one of the above? Hmmm...
 
+    void check_unification(sym_index , ast_expression *);
+
     sym_index check_binop1(ast_binaryoperation *);
 
     sym_index check_binop2(ast_binaryoperation *, string);

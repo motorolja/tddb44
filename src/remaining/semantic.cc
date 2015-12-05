@@ -42,41 +42,22 @@ bool semantic::chk_param(ast_id *env,
                         parameter_symbol *formals,
                         ast_expr_list *actuals)
 {
-    parameter_symbol *def_param = formals;
-    ast_expr_list *given_param = actuals;
-
-    sym_index def_param_type, given_param_type;
-    while(def_param != NULL && given_param != NULL){
-        def_param_type = def_param->type;
-        given_param_type = given_param->last_expr->type_check();
-        if(def_param_type != given_param_type){
-        // some problem
-            if(def_param_type == real_type && given_param_type == integer_type){
-                // lets cast it
-                ast_cast *casted = new ast_cast(given_param->last_expr->pos,
-                                        given_param->last_expr);
-                given_param->last_expr = casted;
-            }
-            else{
-                // TODO: say something what did not matched!
-                string error_message = "parameter not be matched expected given \n";
-                type_error(given_param->pos) << error_message;
-                return false;
-            }
-        }
-        def_param = def_param->preceding;
-        given_param = given_param->preceding;
+    while(formals != NULL && actuals != NULL){
+        check_unification(formals->type,
+                                actuals->last_expr);
+        formals = formals->preceding;
+        actuals = actuals->preceding;
     }
-    if(def_param != NULL){
+    if(actuals != NULL){
         //error to many arguments
         string error_message = "to many parameters given \n";
-        fatal(error_message);
+        type_error(env->pos) << error_message;
         return false;
     }
-    if(given_param != NULL){
+    if(formals != NULL){
         // error to few arguments
         string error_message = "to few parameters given \n";
-        fatal(error_message);
+        type_error(env->pos) << error_message;
         return false;
     }
     return true;
@@ -88,11 +69,52 @@ bool semantic::chk_param(ast_id *env,
 void semantic::check_parameters(ast_id *call_id,
                                 ast_expr_list *param_list)
 {
-    parameter_symbol *def_param = dynamic_cast<parameter_symbol*>
-                                (sym_tab->get_symbol(call_id->sym_p));
+    if(param_list != NULL){
+        param_list->type_check();
+    }
+    symbol *called_symbol = sym_tab->get_symbol(call_id->sym_p);
+    parameter_symbol *def_param = NULL;
+    switch(called_symbol->tag){
+        //We have to check a function
+        case SYM_FUNC:
+            def_param = dynamic_cast<function_symbol*>(called_symbol)
+                             ->last_parameter;
+            break;
+        case SYM_PROC:
+            def_param = dynamic_cast<procedure_symbol*>(called_symbol)
+                             ->last_parameter;
+            break;
+        default:
+            fatal("called something not a funciton");
+    }
     chk_param(call_id, def_param, param_list);
 }
 
+
+void semantic::check_unification(sym_index fix_type,
+                                    ast_expression *match_expr){
+    if(fix_type != match_expr->type){
+        // some problem
+        if(match_expr->type == real_type){
+            printf("realtype\n");
+        }else
+        if(match_expr->type == integer_type){
+            printf("inttype\n");
+        }else
+            printf("sometype\n");
+
+        if(fix_type == real_type && match_expr->type == integer_type){
+            // lets cast it
+            match_expr = new ast_cast(match_expr->pos,
+                                    match_expr);
+        }
+        else{
+            // TODO: say something what did not matched!
+            string error_message = "bparameter not be matched expected given \n";
+            type_error(match_expr->pos) << error_message;
+        }
+    }
+}
 
 
 /* We overload this method for the various ast_node subclasses that can
@@ -233,24 +255,24 @@ sym_index semantic::check_binop1(ast_binaryoperation *node)
 
 sym_index ast_add::type_check()
 {
-    return type_checker->check_binop1(this);
+    return type = type_checker->check_binop1(this);
 }
 
 sym_index ast_sub::type_check()
 {
-    return type_checker->check_binop1(this);
+    return type = type_checker->check_binop1(this);
 }
 
 sym_index ast_mult::type_check()
 {
-    return type_checker->check_binop1(this);
+    return type = type_checker->check_binop1(this);
 }
 
 /* Divide is a special case, since it always returns real. We make sure the
    operands are cast to real too as needed. */
 sym_index ast_divide::type_check()
 {
-    return type_checker->check_binop1(this);
+    return type = type_checker->check_binop1(this);
 }
 
 
@@ -289,22 +311,22 @@ sym_index semantic::check_binop2(ast_binaryoperation *node, string s)
 
 sym_index ast_or::type_check()
 {
-    return type_checker->check_binop2(this, "or");
+    return type = type_checker->check_binop2(this, "or");
 }
 
 sym_index ast_and::type_check()
 {
-    return type_checker->check_binop2(this, "and");
+    return type = type_checker->check_binop2(this, "and");
 }
 
 sym_index ast_idiv::type_check()
 {
-    return type_checker->check_binop2(this, "idiv");
+    return type = type_checker->check_binop2(this, "idiv");
 }
 
 sym_index ast_mod::type_check()
 {
-    return type_checker->check_binop2(this, "mod");
+    return type = type_checker->check_binop2(this, "mod");
 }
 
 
@@ -333,22 +355,22 @@ sym_index semantic::check_binrel(ast_binaryrelation *node)
 
 sym_index ast_equal::type_check()
 {
-  return type_checker->check_binrel(this);
+  return type = type_checker->check_binrel(this);
 }
 
 sym_index ast_notequal::type_check()
 {
-  return type_checker->check_binrel(this);
+  return type = type_checker->check_binrel(this);
 }
 
 sym_index ast_lessthan::type_check()
 {
-  return type_checker->check_binrel(this);
+  return type = type_checker->check_binrel(this);
 }
 
 sym_index ast_greaterthan::type_check()
 {
-  return type_checker->check_binrel(this);
+  return type = type_checker->check_binrel(this);
 }
 
 
@@ -365,9 +387,8 @@ sym_index ast_procedurecall::type_check()
 
 sym_index ast_assign::type_check()
 {
-  /* Your code here */
-
-  return void_type;
+    type_checker->check_unification(lhs->type_check(), rhs);
+    return void_type;
 }
 
 
@@ -387,7 +408,19 @@ sym_index ast_while::type_check()
 
 sym_index ast_if::type_check()
 {
-    /* Your code here */
+     if (condition->type_check() != integer_type) {
+        type_error(condition->pos) << "while predicate must be of integer "
+                                   << "type.\n";
+    }
+    if (body != NULL) {
+        body->type_check();
+    }
+    if (elsif_list != NULL) {
+        elsif_list->type_check();
+    }
+    if (else_body != NULL) {
+        else_body->type_check();
+    }
     return void_type;
 }
 
@@ -438,26 +471,37 @@ sym_index ast_return::type_check()
 
 sym_index ast_functioncall::type_check()
 {
-    /* Your code here */
-    return void_type;
+    type_checker->check_parameters(id, parameter_list);
+    return type = sym_tab->get_symbol_type(id->sym_p);;
 }
 
 sym_index ast_uminus::type_check()
 {
-    /* Your code here */
-    return void_type;
+    return expr->type_check();
 }
 
 sym_index ast_not::type_check()
 {
-    /* Your code here */
-    return void_type;
+    if(expr->type_check() != integer_type){
+        type_error(expr->pos) << "something following not must be integer\n";
+        return void_type;
+    }
+    else
+        return integer_type; 
+    
 }
 
 
 sym_index ast_elsif::type_check()
 {
-    /* Your code here */
+    if (condition->type_check() != integer_type) {
+        type_error(condition->pos) << "elsif predicate must be of integer "
+                                   << "type.\n";
+    }
+
+    if (body != NULL) {
+        body->type_check();
+    }
     return void_type;
 }
 
