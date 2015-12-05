@@ -97,21 +97,24 @@ void semantic::check_unification(sym_index fix_type,
         // some problem
         if(match_expr->type == real_type){
             printf("realtype\n");
-        }else
-        if(match_expr->type == integer_type){
+        }
+        else {
+          if(match_expr->type == integer_type){
             printf("inttype\n");
-        }else
+          }
+          else {
             printf("sometype\n");
-
-        if(fix_type == real_type && match_expr->type == integer_type){
+          }
+          if(fix_type == real_type && match_expr->type == integer_type){
             // lets cast it
             match_expr = new ast_cast(match_expr->pos,
-                                    match_expr);
-        }
-        else{
+                                      match_expr);
+          }
+          else{
             // TODO: say something what did not matched!
             string error_message = "bparameter not be matched expected given \n";
             type_error(match_expr->pos) << error_message;
+          }
         }
     }
 }
@@ -395,8 +398,7 @@ sym_index ast_assign::type_check()
 sym_index ast_while::type_check()
 {
     if (condition->type_check() != integer_type) {
-        type_error(condition->pos) << "while predicate must be of integer "
-                                   << "type.\n";
+        type_error(condition->pos) << ErrorMap[WHILE_PREDICATE_ERROR] << endl;
     }
 
     if (body != NULL) {
@@ -409,8 +411,7 @@ sym_index ast_while::type_check()
 sym_index ast_if::type_check()
 {
      if (condition->type_check() != integer_type) {
-        type_error(condition->pos) << "while predicate must be of integer "
-                                   << "type.\n";
+        type_error(condition->pos) << ErrorMap[IF_PREDICATE_ERROR] << endl;
     }
     if (body != NULL) {
         body->type_check();
@@ -442,7 +443,7 @@ sym_index ast_return::type_check()
         if (tmp->tag != SYM_PROC)
             // ...and we're not inside a procedure, something is wrong.
         {
-            type_error(pos) << "Must return a value from a function.\n";
+          type_error(pos) << ErrorMap[FUNCTION_NO_RETURN] << endl;
         }
         return void_type;
     }
@@ -452,8 +453,8 @@ sym_index ast_return::type_check()
     // The return value is not NULL,
     if (tmp->tag != SYM_FUNC) {
         // ...so if we're not inside a function, something is wrong too.
-        type_error(pos) << "Procedures may not return a value.\n";
-        return void_type;
+      type_error(pos) << ErrorMap[PROCEDURE_RETURN_ERROR] << endl; 
+      return void_type;
     }
 
     // Now we know it's a function and can safely downcast.
@@ -462,7 +463,7 @@ sym_index ast_return::type_check()
     // Must make sure that the return type matches the function's
     // declared return type.
     if (func->type != value_type) {
-        type_error(value->pos) << "Bad return type from function.\n";
+      type_error(value->pos) << ErrorMap[FUNCTION_BAD_RETURN_TYPE] << endl;
     }
 
     return void_type;
@@ -483,20 +484,18 @@ sym_index ast_uminus::type_check()
 sym_index ast_not::type_check()
 {
     if(expr->type_check() != integer_type){
-        type_error(expr->pos) << "something following not must be integer\n";
+      type_error(expr->pos) << ErrorMap[NEGATION_TYPE_ERROR] << endl;
         return void_type;
     }
     else
         return integer_type; 
-    
 }
 
 
 sym_index ast_elsif::type_check()
 {
     if (condition->type_check() != integer_type) {
-        type_error(condition->pos) << "elsif predicate must be of integer "
-                                   << "type.\n";
+      type_error(condition->pos) << ErrorMap[ELSIF_PREDICATE_ERROR] << endl;
     }
 
     if (body != NULL) {
