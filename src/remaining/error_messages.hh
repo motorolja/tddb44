@@ -17,7 +17,11 @@ enum ErrorMessage {
   FUNCTION_NO_RETURN,
   NEGATION_TYPE_ERROR,
   ELSIF_PREDICATE_ERROR,
-  UNIFICATION_INVALID_TYPE
+  UNIFICATION_INVALID_TYPE,
+  CONDITION_INVALID_TYPE,
+  BINARYRELATION_INVALID_TYPE,
+  BINARYRELATION_VOID,
+  ASSIGN_ERROR
 };
 
 static std::map<ErrorMessage,const std::string> ErrorMap{
@@ -34,7 +38,11 @@ static std::map<ErrorMessage,const std::string> ErrorMap{
   {NEGATION_TYPE_ERROR,"Only integers are allowed after a negation"},
   {ELSIF_PREDICATE_ERROR,"elsif predicates must be of integer type"},
   {UNIFICATION_INVALID_TYPE,"Invalid types, cannot cast types since we do not have Real and Integer"},
-  {INVALID_INDEX_TYPE,"Invalid index type, should be integer"}
+  {INVALID_INDEX_TYPE,"Invalid index type, should be integer"},
+  {CONDITION_INVALID_TYPE,"Void is not allowed in conditions"},
+  {BINARYRELATION_VOID,"Void is not allowed for binary relations"},
+  {BINARYRELATION_INVALID_TYPE, "Unsupported type in binary relation, should be either integer or real"},
+  {ASSIGN_ERROR,"Cannot assign real values to integers"},
 };
 
 #endif
