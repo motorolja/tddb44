@@ -244,23 +244,22 @@ sym_index semantic::check_binop1(ast_binaryoperation *node)
     // can return any thing interger and  real_type
     sym_index left_type = node->left->type_check();
     sym_index right_type = node->right->type_check();
-    //TODO: are we sure ast_expr is either integer or real
     if (left_type == integer_type && right_type == integer_type ){
-        return integer_type;
+      node->type = integer_type;
+      return integer_type;
     }
     else if((left_type == integer_type || left_type == real_type)
             && (right_type == integer_type || right_type == real_type)) {
-        if(left_type == integer_type){
-            // insert casting to real_type
-            ast_cast *casted = new ast_cast(node->left->pos, node->left);
-            node->left = casted;
-        }
-        if(right_type == integer_type){
-            // insert casting to real_type
-            ast_cast *casted = new ast_cast(node->right->pos, node->right);
-            node->left = casted;
-        }
-        return real_type;
+      if(left_type == integer_type){
+        // insert casting to real_type
+        node->left = new ast_cast(node->left->pos, node->left);
+      }
+      else {
+        // insert casting to real_type
+        node->right = new ast_cast(node->right->pos, node->right);
+      }
+      node->type = real_type;
+      return real_type;
     }
     else {
       // We have a bad type in left or right
