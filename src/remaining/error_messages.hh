@@ -6,6 +6,7 @@
 enum ErrorMessage {
   INVALID_TYPE=0,
   ARRAY_BAD_INDEX,
+  INVALID_INDEX_TYPE,
   NON_CONSTANT,
   INVALID_SYMBOL,
   SYMBOL_CAST,
@@ -15,7 +16,8 @@ enum ErrorMessage {
   FUNCTION_BAD_RETURN_TYPE,
   FUNCTION_NO_RETURN,
   NEGATION_TYPE_ERROR,
-  ELSIF_PREDICATE_ERROR
+  ELSIF_PREDICATE_ERROR,
+  UNIFICATION_INVALID_TYPE
 };
 
 static std::map<ErrorMessage,const std::string> ErrorMap{
@@ -30,7 +32,9 @@ static std::map<ErrorMessage,const std::string> ErrorMap{
   {FUNCTION_BAD_RETURN_TYPE,"Bad return type from function"},
   {FUNCTION_NO_RETURN, "Functions must return a value"},
   {NEGATION_TYPE_ERROR,"Only integers are allowed after a negation"},
-  {ELSIF_PREDICATE_ERROR,"elsif predicates must be of integer type"}
+  {ELSIF_PREDICATE_ERROR,"elsif predicates must be of integer type"},
+  {UNIFICATION_INVALID_TYPE,"Invalid types, cannot cast types since we do not have Real and Integer"},
+  {INVALID_INDEX_TYPE,"Invalid index type, should be integer"}
 };
 
 #endif

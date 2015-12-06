@@ -93,8 +93,18 @@ void semantic::check_parameters(ast_id *call_id,
 
 void semantic::check_unification(sym_index fix_type,
                                     ast_expression *match_expr){
-    if(fix_type != match_expr->type){
-        // some problem
+  // If we need to cast the type on either side
+  if(fix_type != match_expr->type){
+    // check if we have valid types on LHS and RHS
+    if ((fix_type != real_type && fix_type != integer_type) ||
+        (match_expr->type != real_type && match_expr->type != integer_type)) {
+      type_error(match_expr->pos) << ErrorMap[UNIFICATION_INVALID_TYPE] << endl;
+    }
+    // if the types were valid try to cast
+    else {
+      match_expr = new ast_cast(match_expr->pos,match_expr);
+    }
+      /* This code is messy
         if(match_expr->type == real_type){
             printf("realtype\n");
         }
@@ -116,6 +126,7 @@ void semantic::check_unification(sym_index fix_type,
             type_error(match_expr->pos) << error_message;
           }
         }
+      */
     }
 }
 
@@ -178,7 +189,6 @@ sym_index ast_stmt_list::type_check()
 /* Type check a list of expressions. */
 sym_index ast_expr_list::type_check()
 {
-    
     if (preceding != NULL) {
         preceding->type_check();
     }
@@ -217,11 +227,9 @@ sym_index ast_id::type_check()
 
 sym_index ast_indexed::type_check()
 {
-    
     // something like a[1]
     if (index->type_check() != integer_type){
-        type_error(this->pos) << "index must be of integer "
-                                   << "type.\n";
+        type_error(this->pos) << ErrorMap[INVALID_INDEX_TYPE] << endl;
     }
     return id->type_check();
 }
@@ -234,18 +242,18 @@ sym_index ast_indexed::type_check()
 sym_index semantic::check_binop1(ast_binaryoperation *node)
 {
     // can return any thing interger and  real_type
-    sym_index left_type = node->left->type_check(); 
+    sym_index left_type = node->left->type_check();
     sym_index right_type = node->right->type_check();
     //TODO: are we sure ast_expr is either integer or real
     if (left_type == integer_type && right_type == integer_type ){
-        return integer_type;   
+        return integer_type;
     }
-    else{
+    else if((left_type == integer_type || left_type == real_type)
+            && (right_type == integer_type || right_type == real_type)) {
         if(left_type == integer_type){
             // insert casting to real_type
             ast_cast *casted = new ast_cast(node->left->pos, node->left);
             node->left = casted;
-            
         }
         if(right_type == integer_type){
             // insert casting to real_type
@@ -253,6 +261,11 @@ sym_index semantic::check_binop1(ast_binaryoperation *node)
             node->left = casted;
         }
         return real_type;
+    }
+    else {
+      // We have a bad type in left or right
+      type_error(node->pos) << ErrorMap[UNIFICATION_INVALID_TYPE] << endl;
+      return void_type;
     }
 }
 
@@ -353,7 +366,7 @@ sym_index semantic::check_binrel(ast_binaryrelation *node)
             node->left = casted;
         }
     }
-    return integer_type;   
+    return integer_type;
 }
 
 sym_index ast_equal::type_check()
@@ -375,7 +388,6 @@ sym_index ast_greaterthan::type_check()
 {
   return type = type_checker->check_binrel(this);
 }
-
 
 
 /*** The various classes derived from ast_statement. ***/
