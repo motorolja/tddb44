@@ -270,17 +270,17 @@ sym_index semantic::check_binop1(ast_binaryoperation *node)
 
 sym_index ast_add::type_check()
 {
-    return type = type_checker->check_binop1(this);
+    return type_checker->check_binop1(this);
 }
 
 sym_index ast_sub::type_check()
 {
-    return type = type_checker->check_binop1(this);
+    return type_checker->check_binop1(this);
 }
 
 sym_index ast_mult::type_check()
 {
-    return type = type_checker->check_binop1(this);
+    return type_checker->check_binop1(this);
 }
 
 /* Divide is a special case, since it always returns real. We make sure the
@@ -344,24 +344,25 @@ sym_index semantic::check_binop2(ast_binaryoperation *node, string s)
     }
 }
 
+// NOTE TO SELF: Maybe we need to use capital letters?
 sym_index ast_or::type_check()
 {
-    return type = type_checker->check_binop2(this, "or");
+    return type_checker->check_binop2(this, "or");
 }
 
 sym_index ast_and::type_check()
 {
-    return type = type_checker->check_binop2(this, "and");
+    return type_checker->check_binop2(this, "and");
 }
 
 sym_index ast_idiv::type_check()
 {
-    return type = type_checker->check_binop2(this, "idiv");
+    return type_checker->check_binop2(this, "idiv");
 }
 
 sym_index ast_mod::type_check()
 {
-    return type = type_checker->check_binop2(this, "mod");
+    return type_checker->check_binop2(this, "mod");
 }
 
 
@@ -373,39 +374,53 @@ sym_index semantic::check_binrel(ast_binaryrelation *node)
     // only return interger type; 
     sym_index left_type = node->left->type_check(); 
     sym_index right_type = node->right->type_check();
-    if (left_type != right_type){
-        if(left_type == integer_type){
-            // insert casting to real_type
-            ast_cast *casted = new ast_cast(node->left->pos, node->left);
-            node->left = casted;
-        }
-        if(right_type == integer_type){
-            // insert casting to real_type
-            ast_cast *casted = new ast_cast(node->right->pos, node->right);
-            node->left = casted;
-        }
+
+    if (left_type == void_type || right_type == void_type) {
+      type_error(node->pos) << ErrorMap[BINARYRELATION_VOID] << endl;
+      return void_type;
     }
-    return integer_type;
+    // NOTE TO SELF: Should we handle conditions with strings and chars? eg char a > char b || string 1 == string 2
+    if((left_type == integer_type || left_type == real_type)
+            && (right_type == integer_type || right_type == real_type)) {
+      if(left_type == integer_type){
+        // insert casting to real_type
+        node->left = new ast_cast(node->left->pos, node->left);
+      }
+      else {
+        // insert casting to real_type
+        node->right = new ast_cast(node->right->pos, node->right);
+      }
+      node->type = integer_type;
+      return integer_type;
+    }
+    else if (left_type == integer_type && right_type == integer_type) {
+      node->type = integer_type;
+      return integer_type;
+    }
+    else {
+      type_error(node->pos) << ErrorMap[BINARYRELATION_INVALID_TYPE] << endl;
+      return void_type;
+    }
 }
 
 sym_index ast_equal::type_check()
 {
-  return type = type_checker->check_binrel(this);
+  return type_checker->check_binrel(this);
 }
 
 sym_index ast_notequal::type_check()
 {
-  return type = type_checker->check_binrel(this);
+  return type_checker->check_binrel(this);
 }
 
 sym_index ast_lessthan::type_check()
 {
-  return type = type_checker->check_binrel(this);
+  return type_checker->check_binrel(this);
 }
 
 sym_index ast_greaterthan::type_check()
 {
-  return type = type_checker->check_binrel(this);
+  return type_checker->check_binrel(this);
 }
 
 
