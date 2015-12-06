@@ -287,7 +287,26 @@ sym_index ast_mult::type_check()
    operands are cast to real too as needed. */
 sym_index ast_divide::type_check()
 {
-    return type = type_checker->check_binop1(this);
+  // TDOD: Handle special case with division
+  sym_index lhs = left->type_check();
+  sym_index rhs = right->type_check();
+
+  if ((lhs != integer_type && lhs != real_type) || (rhs != integer_type && rhs != real_type)) {
+    type_error(this->pos) << ErrorMap[UNIFICATION_INVALID_TYPE] << endl;
+    return void_type;
+  }
+
+  type = real_type;
+
+  if (lhs == integer_type) {
+    left = new ast_cast(left->pos,left);
+  }
+  if (rhs == integer_type) {
+    right = new ast_cast(right->pos,right);
+  }
+
+
+  return real_type;
 }
 
 
