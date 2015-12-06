@@ -42,6 +42,18 @@ bool semantic::chk_param(ast_id *env,
                         parameter_symbol *formals,
                         ast_expr_list *actuals)
 {
+  if (formals == NULL && actuals == NULL) {
+    return true;
+  }
+  else if (formals == NULL || actuals == NULL) {
+    return false;
+  }
+  // check next when we know that we do not have NULL
+  else if (formals->type == actuals->last_expr->type ) {
+    return chk_param(env,formals->preceding,actuals->preceding);
+  }
+  return false;
+  /*
     while(formals != NULL && actuals != NULL){
         check_unification(formals->type,
                                 actuals->last_expr);
@@ -61,8 +73,8 @@ bool semantic::chk_param(ast_id *env,
         return false;
     }
     return true;
+  */
 }
-
 
 /* Check formal vs. actual parameters at procedure/function calls. */
 // itterativ solution
@@ -90,11 +102,11 @@ void semantic::check_parameters(ast_id *call_id,
     chk_param(call_id, def_param, param_list);
 }
 
-
+/*
 void semantic::check_unification(sym_index fix_type,
                                     ast_expression *match_expr){
   // If we need to cast the type on either side
-  if(fix_type != match_expr->type){
+  if(fix_type != match_expr){
     // check if we have valid types on LHS and RHS
     if ((fix_type != real_type && fix_type != integer_type) ||
         (match_expr->type != real_type && match_expr->type != integer_type)) {
@@ -126,10 +138,10 @@ void semantic::check_unification(sym_index fix_type,
             type_error(match_expr->pos) << error_message;
           }
         }
-      */
+*//*
     }
 }
-
+*/
 
 /* We overload this method for the various ast_node subclasses that can
    appear in the AST. By use of virtual (dynamic) methods, we ensure that
@@ -436,8 +448,23 @@ sym_index ast_procedurecall::type_check()
 
 sym_index ast_assign::type_check()
 {
-    type_checker->check_unification(lhs->type_check(), rhs);
-    return void_type;
+  sym_index left_type = lhs->type_check();
+  sym_index right_type = rhs->type_check();
+
+  if(left_type != right_type){
+    // check if we have valid types on LHS and RHS
+    if ((left_type != real_type && left_type != integer_type) ||
+        (right_type != real_type && right_type != integer_type)) {
+      type_error(pos) << ErrorMap[UNIFICATION_INVALID_TYPE] << endl;
+    }
+    else if (left_type == integer_type && right_type == real_type) {
+      type_error(pos) << ErrorMap[ASSIGN_ERROR] << endl;
+    }
+    else {
+      rhs = new ast_cast(pos,rhs);
+    }
+  }
+  return left_type;
 }
 
 
@@ -519,7 +546,7 @@ sym_index ast_return::type_check()
 sym_index ast_functioncall::type_check()
 {
     type_checker->check_parameters(id, parameter_list);
-    return type = sym_tab->get_symbol_type(id->sym_p);;
+    return sym_tab->get_symbol_type(id->sym_p);
 }
 
 sym_index ast_uminus::type_check()
@@ -530,11 +557,9 @@ sym_index ast_uminus::type_check()
 sym_index ast_not::type_check()
 {
     if(expr->type_check() != integer_type){
-      type_error(expr->pos) << ErrorMap[NEGATION_TYPE_ERROR] << endl;
-        return void_type;
+      type_error(pos) << ErrorMap[NEGATION_TYPE_ERROR] << endl;
     }
-    else
-        return integer_type; 
+    return integer_type; 
 }
 
 
