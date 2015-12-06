@@ -323,23 +323,24 @@ sym_index semantic::check_binop2(ast_binaryoperation *node, string s)
     sym_index left_type = node->left->type_check(); 
     sym_index right_type = node->right->type_check();
     if (left_type == integer_type && right_type == integer_type ){
-        return integer_type;   
+      node->type = integer_type;
+      return integer_type;   
     }
     else{
-        string fault_side = "";
-        if(left_type == integer_type){
-            fault_side += "left";
-        }
-        if(right_type == integer_type){
-            // insert casting to real_type
-            fault_side += "right";  
-        }
-        type_error(node->pos) << fault_side 
-                                   << " side of"
-                                   << s
-                                   << "must be of integer "
-                                   << "type.\n";
-        return void_type;
+      string fault_side = "";
+      if(left_type == integer_type){
+          fault_side += "left";
+      }
+      if(right_type == integer_type){
+        // insert casting to real_type
+        fault_side += "right";  
+      }
+      type_error(node->pos) << fault_side 
+                            << " side of"
+                            << s
+                            << "must be of integer "
+                            << "type.\n";
+      return void_type;
     }
 }
 
