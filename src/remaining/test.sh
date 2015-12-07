@@ -1,18 +1,27 @@
 #!/bin/bash
 
-FLAGS="-parser,-semantic"
+
+PARSER="-parser"
+SEMANTIC="-semantic"
+OPTIMIZATION="-optimization"
+FLAGS="$PARSER,$SEMANTIC,$OPTIMIZATION"
+
+TEST_PATH="../testpgm/"
 
 make
 
-if [ "$1" == "-parser" ]
+if [ "$1" == "$PARSER" ]
 then
-    ./diesel -a -b -c -f -p ../testpgm/parstest1.d
-    ./diesel -a -b -c -f -p ../testpgm/parstest2.d
-    ./diesel -a -b -c -f -p ../testpgm/parstest3.d
-elif [ "$1" == "-semantic" ]
+    ./diesel -a -b -c -f -p ""$TEST_PATH"parstest1.d"
+    ./diesel -a -b -c -f -p ""$TEST_PATH"parstest2.d"
+    ./diesel -a -b -c -f -p ""$TEST_PATH"parstest3.d"
+elif [ "$1" == "$SEMANTIC" ]
 then
-    ./diesel -b -p -f -y -a ../testpgm/semtest1.d
-    ./diesel -b -p -f -y -a ../testpgm/semtest2.d
+    ./diesel -b -p -f -y -a ""$TEST_PATH"semtest1.d"
+    ./diesel -b -p -f -y -a ""$TEST_PATH"semtest2.d"
+elif [ "$1" == "$OPTIMIZATION" ]
+then
+    ./diesel -b -p -a ""$TEST_PATH"opttest1.d"
 else
     echo "Invalid or no flag set, use either of following flags: $FLAGS"
 fi
