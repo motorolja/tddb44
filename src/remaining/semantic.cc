@@ -51,29 +51,11 @@ bool semantic::chk_param(ast_id *env,
   // check next when we know that we do not have NULL
   else if (formals->type == actuals->last_expr->type ) {
     return chk_param(env,formals->preceding,actuals->preceding);
+  }else if (formals->type == real_type && actuals->last_expr->type == integer_type){
+        actuals->last_expr = new ast_cast(actuals->last_expr->pos, actuals->last_expr);
+        return chk_param(env,formals->preceding,actuals->preceding);
   }
   return false;
-  /*
-    while(formals != NULL && actuals != NULL){
-        check_unification(formals->type,
-                                actuals->last_expr);
-        formals = formals->preceding;
-        actuals = actuals->preceding;
-    }
-    if(actuals != NULL){
-        //error to many arguments
-        string error_message = "to many parameters given \n";
-        type_error(env->pos) << error_message;
-        return false;
-    }
-    if(formals != NULL){
-        // error to few arguments
-        string error_message = "to few parameters given \n";
-        type_error(env->pos) << error_message;
-        return false;
-    }
-    return true;
-  */
 }
 
 /* Check formal vs. actual parameters at procedure/function calls. */
