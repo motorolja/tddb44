@@ -571,15 +571,12 @@ sym_index symbol_table::lookup_symbol(const pool_index pool_p)
   hash_index hash_table_index = hash(pool_p);
   // get the value from the hash table at the hashed index
   sym_index sym_table_index = hash_table[hash_table_index];
-  if(sym_table_index < block_table[current_level])
-    return sym_table_index;
-  
-  do {
+  while (sym_table_index != NULL_SYM){
     if (pool_compare(sym_table[sym_table_index]->id,pool_p)){
         return sym_table_index;
     }
     sym_table_index = sym_table[sym_table_index]->hash_link;
-  } while(sym_table_index != NULL_SYM);
+  }
   return NULL_SYM;
 }
 
@@ -676,7 +673,7 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
 
   sym_index index = lookup_symbol(pool_p);
   // If we allready have installed it
-  if (index != NULL_SYM && sym_table[index]->level >= current_environment()) 
+  if (index != NULL_SYM && index >= current_environment()) 
   {
     return index;
   }
