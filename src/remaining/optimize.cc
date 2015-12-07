@@ -94,14 +94,20 @@ void ast_stmt_list::optimize()
 /* Optimize a list of expressions. */
 void ast_expr_list::optimize()
 {
-    /* Your code here */
+    if(last_expr != NULL)
+        last_expr->optimize();
+    if(preceding != NULL)
+        preceding->optimize();
 }
 
 
 /* Optimize an elsif list. */
 void ast_elsif_list::optimize()
 {
-    /* Your code here */
+    if(last_elsif != NULL)
+        last_elsif->optimize();
+    if(preceding != NULL)
+        preceding->optimize();
 }
 
 
@@ -115,7 +121,7 @@ void ast_id::optimize()
 
 void ast_indexed::optimize()
 {
-    /* Your code here */
+    index->optimize();
 }
 
 
@@ -125,50 +131,50 @@ void ast_indexed::optimize()
    original node if no optimization could be performed. */
 ast_expression *ast_optimizer::fold_constants(ast_expression *node)
 {
-    /* Your code here */
-    return NULL;
+
+      return NULL;  
 }
 
 /* All the binary operations should already have been detected in their parent
    nodes, so we don't need to do anything at all here. */
 void ast_add::optimize()
 {
-    /* Your code here */
+    optimizer->fold_constants(this);
 }
 
 void ast_sub::optimize()
 {
-    /* Your code here */
+    optimizer->fold_constants(this);
 }
 
 void ast_mult::optimize()
 {
-    /* Your code here */
+    optimizer->fold_constants(this);
 }
 
 void ast_divide::optimize()
 {
-    /* Your code here */
+    optimizer->fold_constants(this);
 }
 
 void ast_or::optimize()
 {
-    /* Your code here */
+    optimizer->fold_constants(this);
 }
 
 void ast_and::optimize()
 {
-    /* Your code here */
+    optimizer->fold_constants(this);
 }
 
 void ast_idiv::optimize()
 {
-    /* Your code here */
+    optimizer->fold_constants(this);
 }
 
 void ast_mod::optimize()
 {
-    /* Your code here */
+    optimizer->fold_constants(this);
 }
 
 
