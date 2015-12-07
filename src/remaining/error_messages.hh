@@ -21,7 +21,8 @@ enum ErrorMessage {
   CONDITION_INVALID_TYPE,
   BINARYRELATION_INVALID_TYPE,
   BINARYRELATION_VOID,
-  ASSIGN_ERROR
+  ASSIGN_ERROR,
+  PARAMETER_ERROR
 };
 
 static std::map<ErrorMessage,const std::string> ErrorMap{
@@ -43,6 +44,7 @@ static std::map<ErrorMessage,const std::string> ErrorMap{
   {BINARYRELATION_VOID,"Void is not allowed for binary relations"},
   {BINARYRELATION_INVALID_TYPE, "Unsupported type in binary relation, should be either integer or real"},
   {ASSIGN_ERROR,"Cannot assign real values to integers"},
+  {PARAMETER_ERROR, "Type error of parameters in function/procedure"}
 };
 
 #endif

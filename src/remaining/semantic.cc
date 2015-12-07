@@ -87,61 +87,20 @@ void semantic::check_parameters(ast_id *call_id,
     symbol *called_symbol = sym_tab->get_symbol(call_id->sym_p);
     parameter_symbol *def_param = NULL;
     switch(called_symbol->tag){
-        //We have to check a function
-        case SYM_FUNC:
-            def_param = dynamic_cast<function_symbol*>(called_symbol)
-                             ->last_parameter;
-            break;
-        case SYM_PROC:
-            def_param = dynamic_cast<procedure_symbol*>(called_symbol)
-                             ->last_parameter;
-            break;
-        default:
-            fatal("called something not a funciton");
+      //We have to check a function
+    case SYM_FUNC:
+      def_param = called_symbol->get_function_symbol()->last_parameter;
+      break;
+    case SYM_PROC:
+      def_param = called_symbol->get_procedure_symbol()->last_parameter;
+      break;
+    default:
+      fatal("called something not a funciton");
     }
-    chk_param(call_id, def_param, param_list);
-}
-
-/*
-void semantic::check_unification(sym_index fix_type,
-                                    ast_expression *match_expr){
-  // If we need to cast the type on either side
-  if(fix_type != match_expr){
-    // check if we have valid types on LHS and RHS
-    if ((fix_type != real_type && fix_type != integer_type) ||
-        (match_expr->type != real_type && match_expr->type != integer_type)) {
-      type_error(match_expr->pos) << ErrorMap[UNIFICATION_INVALID_TYPE] << endl;
-    }
-    // if the types were valid try to cast
-    else {
-      match_expr = new ast_cast(match_expr->pos,match_expr);
-    }
-      /* This code is messy
-        if(match_expr->type == real_type){
-            printf("realtype\n");
-        }
-        else {
-          if(match_expr->type == integer_type){
-            printf("inttype\n");
-          }
-          else {
-            printf("sometype\n");
-          }
-          if(fix_type == real_type && match_expr->type == integer_type){
-            // lets cast it
-            match_expr = new ast_cast(match_expr->pos,
-                                      match_expr);
-          }
-          else{
-            // TODO: say something what did not matched!
-            string error_message = "bparameter not be matched expected given \n";
-            type_error(match_expr->pos) << error_message;
-          }
-        }
-*//*
+    if(!chk_param(call_id, def_param, param_list)){
+      type_error(call_id->pos) << ErrorMap[PARAMETER_ERROR] << endl;
     }
 }
-*/
 
 /* We overload this method for the various ast_node subclasses that can
    appear in the AST. By use of virtual (dynamic) methods, we ensure that
