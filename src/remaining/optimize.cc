@@ -39,7 +39,46 @@ bool ast_optimizer::is_binop(ast_expression *node)
     }
 }
 
+/* Returns 1 if an AST expression is a subclass of ast_binaryoperation,
+   ie, eligible for constant folding. */
+bool ast_optimizer::is_binrel(ast_expression *node)
+{
+    switch (node->tag) {
+    case AST_EQUAL:
+    case AST_NOTEQUAL:
+    case AST_LESSTHAN:
+    case AST_GREATERTHAN:
+        return true;
+    default:
+        return false;
+    }
+}
 
+bool ast_optimizer::is_const(ast_expression *node)
+{
+    switch (node->tag){
+    case AST_INTEGER:
+    case AST_REAL:
+        return true;
+    case AST_ID:
+        return sym_tab->get_symbol_tag(node->get_ast_id()->sym_p) == SYM_CONST;
+    default:
+        return false;
+    }
+}
+
+bool ast_optimizer::is_var(ast_expression *node)
+{
+    // maybe we should insert here array and param aswell
+    switch (node->tag){
+    case AST_FUNCTIONCALL:
+        return true;
+    case AST_ID:
+        return sym_tab->get_symbol_tag(node->get_ast_id()->sym_p) == SYM_VAR;
+    default:
+        return false;
+    }
+}
 
 /* We overload this method for the various ast_node subclasses that can
    appear in the AST. By use of virtual (dynamic) methods, we ensure that
@@ -65,11 +104,6 @@ void ast_lvalue::optimize()
     fatal("Trying to optimize abstract class ast_lvalue.");
 }
 
-void ast_binaryoperation::optimize()
-{
-    fatal("Trying to optimize abstract class ast_binaryoperation.");
-}
-
 void ast_binaryrelation::optimize()
 {
     fatal("Trying to optimize abstract class ast_binaryrelation.");
@@ -82,12 +116,10 @@ void ast_binaryrelation::optimize()
 /* Optimize a statement list. */
 void ast_stmt_list::optimize()
 {
-    if (preceding != NULL) {
+    if (preceding != NULL) 
         preceding->optimize();
-    }
-    if (last_stmt != NULL) {
+    if (last_stmt != NULL) 
         last_stmt->optimize();
-    }
 }
 
 
@@ -97,7 +129,7 @@ void ast_expr_list::optimize()
     if(last_expr != NULL)
         last_expr->optimize();
     if(preceding != NULL)
-        preceding->optimize();
+        last_expr = optimizer->fold_constants(last_expr);
 }
 
 
@@ -121,7 +153,7 @@ void ast_id::optimize()
 
 void ast_indexed::optimize()
 {
-    index->optimize();
+    index = optimizer->fold_constants(index);
 }
 
 
@@ -131,51 +163,82 @@ void ast_indexed::optimize()
    original node if no optimization could be performed. */
 ast_expression *ast_optimizer::fold_constants(ast_expression *node)
 {
-
-      return NULL;  
+    node->optimize();
+    if(optimizer->is_var(node)){
+        return  node;
+    }else
+    if(optimizer->is_const(node)){
+        
+    }else
+    if(optimzer->is_binop(node)){
+        ast_binaryoperation *binop = node->get_ast_binop();
+        if(binop->type == integer_type){
+            ast_integer *left_int  = ast_binop->left->get_ast_integer();
+            ast_integer *right_int = ast_binop->right->get_ast_integer();
+            if(left_int != NULL && right_int != NULL){
+                return new ast_integer(node->pos, ast_binop->calculate(
+                                                        right_int->alue,
+                                                        left_int->value)); 
+            }else
+                // could not optimize
+                return node;
+        }else
+        if(binop->type == real_type){
+            ast_real *left_real  = ast_binop->left->get_ast_real();
+            ast_real *right_real = ast_binop->right->get_ast_real();
+            if(left_int != NULL && right_int != NULL){
+                return new ast_real(node->pos, ast_binop(
+                                                        right_int->value,
+                                                        left_int->value)); 
+            }else
+                // could not optimize
+                return node;
+        }else
+            //something went wront        
+            fatal("strange binary operation type");
+            return NULL        
+    }else
+    if (optimzer->is_binrel){
+        ast_binaryrelation *binrel = node_get_ast_binrel();
+        if(binrel->type == integer_type){
+            ast_integer *left_int  = ast_binrel->left->get_ast_integer();
+            ast_integer *right_int = ast_binrel->right->get_ast_integer();
+            if(left_int != NULL && right_int != NULL){
+                return new ast_integer(node->pos, ast_binrel->calculate(
+                                                        right_int->alue,
+                                                        left_int->value)); 
+            }else
+                // could not optimize
+                return node;
+        }else
+        if(binrel->type == real_type){
+            ast_real *left_real  = ast_binrel->left->get_ast_real();
+            ast_real *right_real = ast_binrel->right->get_ast_real();
+            if(left_int != NULL && right_int != NULL){
+                return new ast_integer(node->pos, ast_binrel(
+                                                        right_int->value,
+                                                        left_int->value)); 
+            }else
+                // could not optimize
+                return node;
+        }else
+            //something went wront        
+            fatal("strange binary operation type");
+            return NULL        
+        
+    }else
+        fatal("what is this");
+        return NULL;
 }
 
 /* All the binary operations should already have been detected in their parent
    nodes, so we don't need to do anything at all here. */
-void ast_add::optimize()
+void ast_binaryoperation::optimize()
 {
-    optimizer->fold_constants(this);
+    left  = optimizer->fold_constants(left);
+    right = optimizer->fold_constants(right);
 }
 
-void ast_sub::optimize()
-{
-    optimizer->fold_constants(this);
-}
-
-void ast_mult::optimize()
-{
-    optimizer->fold_constants(this);
-}
-
-void ast_divide::optimize()
-{
-    optimizer->fold_constants(this);
-}
-
-void ast_or::optimize()
-{
-    optimizer->fold_constants(this);
-}
-
-void ast_and::optimize()
-{
-    optimizer->fold_constants(this);
-}
-
-void ast_idiv::optimize()
-{
-    optimizer->fold_constants(this);
-}
-
-void ast_mod::optimize()
-{
-    optimizer->fold_constants(this);
-}
 
 
 
