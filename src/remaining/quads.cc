@@ -145,22 +145,46 @@ sym_index ast_id::generate_quads(quad_list &q)
 sym_index ast_integer::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    sym_index index = sym_tab->gen_temp_var(integer_type);
+    // value - internal in ast_integer, q_iload - enum quads.hh, q - quads list
+    q += new quadruple(q_iload, sym_tab->ieee(value), NULL_SYM, index);
+    return index;
 }
 
 
 sym_index ast_real::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    sym_index index = sym_tab->gen_temp_var(real_type);
+    // value - internal in ast_integer, q_rload - enum quads.hh, q - quads list
+    q += new quadruple(q_rload, sym_tab->ieee(value), NULL_SYM, index);
+    return index;
 }
 
 
 /* Expressions of various kinds. */
 
-
+sym_index do_binaryoperation(quad_list &q, quad_op_type quad_int, quad_op_type quad_real, ast_binaryrelation * node) {
+  // maybe we should return something else if it fails, -3 was just taken out of the blue
+  sym_index index = -3, left_index, right_index;
+  if (node->type == integer_type) {
+    left_index = node->left->generate_quads(q);
+    right_index = node->right->generate_quads(q);
+    index = sym_tab->gen_temp_var(integer_type);
+    q += new quadruple(quad_int, left_index, right_index, index);
+  }
+  else if (node->type == real_type) {
+    left_index = node->left->generate_quads(q);
+    right_index = node->right->generate_quads(q);
+    index = sym_tab->gen_temp_var(integer_type);
+    q += new quadruple(quad_real, left_index, right_index, index);
+  }
+  else {
+    fatal("Invalid type of ast_binaryrelation node, should not happen!!");
+  }
+  return index;
+}
+// which functions? was empty here before
 /* These three following methods are extremely similar, and we could have
    written a static do_unary function above to handle them. To be able to
    do so, we'd have to pass on more arguments than we are to the two
