@@ -258,57 +258,49 @@ sym_index ast_cast::generate_quads(quad_list &q)
 sym_index ast_add::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_iplus, q_rplus, this);
 }
 
 sym_index ast_sub::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_iminus, q_rminus, this);
 }
 
 sym_index ast_mult::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_imult, q_rmult, this);
 }
 
 sym_index ast_divide::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_idivide, q_rdivide, this);
 }
 
 sym_index ast_idiv::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_idivide, q_idivide, this);
 }
 
 sym_index ast_mod::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_imod, q_imod, this);
 }
 
 sym_index ast_or::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_ior, q_ior, this);
 }
 
 sym_index ast_and::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_iand, q_iand, this);
 }
 
 
