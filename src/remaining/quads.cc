@@ -163,7 +163,7 @@ sym_index ast_real::generate_quads(quad_list &q)
 
 
 /* Expressions of various kinds. */
-
+// All quat_int and quad_real match to the coresponding real and integer quadruple operation of the ast nodes
 sym_index do_binaryoperation(quad_list &q, quad_op_type quad_int, quad_op_type quad_real, ast_binaryoperation * node) {
   // maybe we should return something else if it fails, -3 was just taken out of the blue
   sym_index index = -3, left_index, right_index;
