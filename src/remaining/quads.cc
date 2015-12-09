@@ -164,7 +164,7 @@ sym_index ast_real::generate_quads(quad_list &q)
 
 /* Expressions of various kinds. */
 
-sym_index do_binaryoperation(quad_list &q, quad_op_type quad_int, quad_op_type quad_real, ast_binaryrelation * node) {
+sym_index do_binaryoperation(quad_list &q, quad_op_type quad_int, quad_op_type quad_real, ast_binaryoperation * node) {
   // maybe we should return something else if it fails, -3 was just taken out of the blue
   sym_index index = -3, left_index, right_index;
   if (node->type == integer_type) {
@@ -176,14 +176,56 @@ sym_index do_binaryoperation(quad_list &q, quad_op_type quad_int, quad_op_type q
   else if (node->type == real_type) {
     left_index = node->left->generate_quads(q);
     right_index = node->right->generate_quads(q);
-    index = sym_tab->gen_temp_var(integer_type);
+    index = sym_tab->gen_temp_var(real_type);
     q += new quadruple(quad_real, left_index, right_index, index);
   }
   else {
-    fatal("Invalid type of ast_binaryrelation node, should not happen!!");
+    fatal("Invalid type of ast_binaryoperation node, should not happen!!");
   }
   return index;
 }
+
+sym_index do_special_operation(quad_list &q, quad_op_type quad_int, quad_op_type quad_real, ast_expression * node) {
+  // maybe we should return something else if it fails, -3 was just taken out of the blue
+  sym_index index = -3, special_index;
+  if (node->type == integer_type) {
+    special_index = node->generate_quads(q);
+    index = sym_tab->gen_temp_var(integer_type);
+    q += new quadruple(quad_int, special_index, special_index, index);
+  }
+  else if (node->type == real_type) {
+    special_index = node->generate_quads(q);
+    index = sym_tab->gen_temp_var(real_type);
+    q += new quadruple(quad_real, special_index, NULL_SYM, index);
+  }
+  else {
+    fatal("Invalid type of ast_expression node, should not happen!!");
+  }
+  return index;
+}
+
+sym_index do_binaryrelation(quad_list &q, quad_op_type quad_int, quad_op_type quad_real, ast_binaryrelation * node) {
+  // maybe we should return something else if it fails, -3 was just taken out of the blue
+  sym_index index = -3, left_index, right_index;
+  if (node->left->type == integer_type && node->right->type == integer_type) {
+    left_index = node->left->generate_quads(q);
+    right_index = node->right->generate_quads(q);
+    index = sym_tab->gen_temp_var(integer_type);
+    q += new quadruple(quad_int, left_index, right_index, index);
+  }
+  else if (node->left->type == real_type && node->right->type == real_type) {
+    left_index = node->left->generate_quads(q);
+    right_index = node->right->generate_quads(q);
+    index = sym_tab->gen_temp_var(real_type);
+    q += new quadruple(quad_real, left_index, right_index, index);
+  }
+  else {
+    fatal("Invalid type of left or right in ast_binaryrelation, should not happen!!");
+  }
+  return index;
+}
+
+
 // which functions? was empty here before
 /* These three following methods are extremely similar, and we could have
    written a static do_unary function above to handle them. To be able to
@@ -193,23 +235,22 @@ sym_index do_binaryoperation(quad_list &q, quad_op_type quad_int, quad_op_type q
 sym_index ast_not::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    // expr - internal variable in ast_not
+    return do_special_operation(q, q_inot, q_inot, expr);
 }
 
 
 sym_index ast_uminus::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_special_operation(q, q_iuminus, q_ruminus, expr);
 }
 
 
 sym_index ast_cast::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
+    // TODO: special case
     return NULL_SYM;
 }
 
