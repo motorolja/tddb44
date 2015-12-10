@@ -462,6 +462,20 @@ void ast_elsif::generate_quads_and_jump(quad_list &q, int label)
 {
     USE_Q;
     /* Your code here */
+    sym_index index = condition->generate_quads(q);
+    int top = sym_tab->get_next_label();
+
+    // q_jmpf - conditional jump
+    q += new quadruple(q_jmpf, top, index, NULL_SYM);
+
+    if (body != NULL) {
+      body->generate_quads(q);
+    }
+
+    // q_jmp - absolute jump
+    q += new quadruple(q_jmp, label, NULL_SYM, NULL_SYM);
+    // q_labl - label for jumping
+    q += new quadruple(q_labl, top, NULL_SYM, NULL_SYM);
 }
 
 
@@ -471,6 +485,10 @@ void ast_elsif_list::generate_quads_and_jump(quad_list &q, int label)
 {
     USE_Q;
     /* Your code here */
+    if (preceding != NULL) {
+      preceding->generate_quads_and_jump(q, label);
+    }
+    last_elsif->generate_quads_and_jump(q, label);
 }
 
 
@@ -482,7 +500,7 @@ sym_index ast_if::generate_quads(quad_list &q)
     sym_index index = condition->generate_quads(q);
     int top = sym_tab->get_next_label();
     // q_jmpf - conditional jump
-    q += new quadruple(q_jmpf,top,index,NULL_SYM);
+    q += new quadruple(q_jmpf, top, index, NULL_SYM);
 
     int end = sym_tab->get_next_label();
 
@@ -490,11 +508,28 @@ sym_index ast_if::generate_quads(quad_list &q)
       body->generate_quads(q);
       if (else_body != NULL || elsif_list != NULL) {
         // q_jmp - absolute jump
-        q += new quadruple(q_jmp,end,NULL_SYM,NULL_SYM);
+        q += new quadruple(q_jmp, end, NULL_SYM, NULL_SYM);
       }
     }
     // incomplete function:
 
+    if (elsif_list != NULL) {
+      // q_labl - marks a jump point
+      q += new quadruple(q_labl, top, NULL_SYM, NULL_SYM);
+      // call to function above since it was pre-defined template function
+      elsif_list->generate_quads_and_jump(q, end);
+    }
+    else {
+      // q_labl - marks a jump point
+      q += new quadruple(q_labl, top, NULL_SYM, NULL_SYM);
+    }
+
+    if (else_body != NULL) {
+      // TODO: Fix run error when calling ast_stmt_list::generate_quads()
+      //else_body->generate_quads(q);
+    }
+    // q_labl - marks a jump point
+    q += new quadruple(q_labl, end, NULL_SYM, NULL_SYM);
     return NULL_SYM;
 }
 
