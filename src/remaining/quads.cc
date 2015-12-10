@@ -378,12 +378,22 @@ sym_index ast_assign::generate_quads(quad_list &q)
    to get the total number of parameters so we can generate a correct q_call
    quad for the new function/procedure that the parameters belong to.
     */
+
+// changed parameter_symbol *last_param to ast_expr_list* type
+// void ast_expr_list::generate_parameter_list(quad_list &q, parameter_symbol *last_param, int *nr_params)
 void ast_expr_list::generate_parameter_list(quad_list &q,
-        parameter_symbol *last_param,
+        ast_expr_list *param_list,
         int *nr_params)
 {
     USE_Q;
     /* Your code here */
+    // TODO: Not sure if this does work, check back later
+    if (param_list != NULL) {
+      (*nr_params)++;
+      q += new quadruple(q_param,param_list->last_expr->generate_quads(q),NULL_SYM,NULL_SYM);
+      // recursive call with preceding parameter symbol, NULL if none
+      generate_parameter_list(q,param_list->preceding,nr_params);
+    }
 }
 
 
@@ -392,6 +402,11 @@ sym_index ast_procedurecall::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+    // TODO: Double check this later
+    int parameters = 0;
+    parameter_list->generate_parameter_list(q, parameter_list, &parameters);
+    q += new quadruple(q_call, id->sym_p, parameters, NULL_SYM);
+
     return NULL_SYM;
 }
 
@@ -401,7 +416,13 @@ sym_index ast_functioncall::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    int parameters = 0;
+    sym_index index = sym_tab->gen_temp_var(type);
+    parameter_list->generate_parameter_list(q, parameter_list, &parameters);
+
+    q += new quadruple(q_call, id->sym_p, parameters, index);
+
+    return index;
 }
 
 
@@ -458,6 +479,22 @@ sym_index ast_if::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+    sym_index index = condition->generate_quads(q);
+    int top = sym_tab->get_next_label();
+    // q_jmpf - conditional jump
+    q += new quadruple(q_jmpf,top,index,NULL_SYM);
+
+    int end = sym_tab->get_next_label();
+
+    if (body != NULL) {
+      body->generate_quads(q);
+      if (else_body != NULL || elsif_list != NULL) {
+        // q_jmp - absolute jump
+        q += new quadruple(q_jmp,end,NULL_SYM,NULL_SYM);
+      }
+    }
+    // incomplete function:
+
     return NULL_SYM;
 }
 

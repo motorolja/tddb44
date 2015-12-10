@@ -436,8 +436,9 @@ public:
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
 
+  // note changed this function
     virtual void generate_parameter_list(quad_list &,
-            parameter_symbol *,
+            ast_expr_list *,
             int *);
 };
 
