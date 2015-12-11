@@ -68,6 +68,14 @@ ast_binaryoperation::ast_binaryoperation(position_information *p,
     tag = AST_BINARYOPERATION;
 }
 
+ast_unaryoperation::ast_unaryoperation(position_information *p,
+        ast_expression *r,
+        sym_index t) :
+    ast_expression(p, t),
+    expr(r)
+{
+    tag = AST_UNARYOPERATION;
+}
 
 /* The ast_lvalue class. */
 ast_lvalue::ast_lvalue(position_information *p) :
@@ -252,8 +260,7 @@ ast_functioncall::ast_functioncall(position_information *p,
 /* The ast_uminus class. */
 ast_uminus::ast_uminus(position_information *p,
                        ast_expression *e) :
-    ast_expression(p, e->type),
-    expr(e)
+    ast_unaryoperation(p, e, e->type)
 {
     tag = AST_UMINUS;
 }
@@ -261,8 +268,7 @@ ast_uminus::ast_uminus(position_information *p,
 /* The ast_not class. Logical negation. */
 ast_not::ast_not(position_information *p,
                  ast_expression *e) :
-    ast_expression(p, integer_type),
-    expr(e)
+    ast_unaryoperation(p, e, integer_type)
 {
     tag = AST_NOT;
 }
@@ -277,7 +283,7 @@ ast_equal::ast_equal(position_information *p,
                      ast_expression *r) :
     ast_binaryrelation(p, l, r)
 {
-    tag = AST_BINARYRELATION;
+    tag = AST_EQUAL;
 }
 
 /* The ast_notequal class. */
@@ -576,6 +582,19 @@ void ast_binaryoperation::xprint(ostream &o, string s)
     end_child(o);
 }
 
+void ast_unaryoperation::print(ostream &o)
+{
+    o << "Unary operation";
+}
+
+void ast_unaryoperation::xprint(ostream &o, string s)
+{
+    o << s <<"(expr) ["
+      << short_symbols << sym_tab->get_symbol(type) << long_symbols << "]\n";
+    last_child(o);
+    o << expr;
+    end_child(o);
+}
 
 void ast_lvalue::print(ostream &o)
 {

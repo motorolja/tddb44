@@ -124,6 +124,11 @@ sym_index ast_binaryrelation::type_check()
     return void_type;
 }
 
+sym_index ast_unaryoperation::type_check()
+{
+    fatal("Trying to type check abstract class ast_unaryoperation.");
+    return void_type;
+}
 
 
 /* Type check a list of statements. */

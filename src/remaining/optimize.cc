@@ -19,67 +19,6 @@ void ast_optimizer::do_optimize(ast_stmt_list *body)
     }
 }
 
-
-/* Returns 1 if an AST expression is a subclass of ast_binaryoperation,
-   ie, eligible for constant folding. */
-bool ast_optimizer::is_binop(ast_expression *node)
-{
-    switch (node->tag) {
-    case AST_ADD:
-    case AST_SUB:
-    case AST_OR:
-    case AST_AND:
-    case AST_MULT:
-    case AST_DIVIDE:
-    case AST_IDIV:
-    case AST_MOD:
-        return true;
-    default:
-        return false;
-    }
-}
-
-/* Returns 1 if an AST expression is a subclass of ast_binaryoperation,
-   ie, eligible for constant folding. */
-bool ast_optimizer::is_binrel(ast_expression *node)
-{
-    switch (node->tag) {
-    case AST_EQUAL:
-    case AST_NOTEQUAL:
-    case AST_LESSTHAN:
-    case AST_GREATERTHAN:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool ast_optimizer::is_const(ast_expression *node)
-{
-    switch (node->tag){
-    case AST_INTEGER:
-    case AST_REAL:
-        return true;
-    case AST_ID:
-        return sym_tab->get_symbol_tag(node->get_ast_id()->sym_p) == SYM_CONST;
-    default:
-        return false;
-    }
-}
-
-bool ast_optimizer::is_var(ast_expression *node)
-{
-    // maybe we should insert here array and param aswell
-    switch (node->tag){
-    case AST_FUNCTIONCALL:
-        return true;
-    case AST_ID:
-        return sym_tab->get_symbol_tag(node->get_ast_id()->sym_p) == SYM_VAR;
-    default:
-        return false;
-    }
-}
-
 /* We overload this method for the various ast_node subclasses that can
    appear in the AST. By use of virtual (dynamic) methods, we ensure that
    the correct method is invoked even if the pointers in the AST refer to
@@ -103,13 +42,37 @@ void ast_lvalue::optimize()
 {
     fatal("Trying to optimize abstract class ast_lvalue.");
 }
-
-void ast_binaryrelation::optimize()
+long ast_binaryrelation::calculate_int(long arg1, long arg2)
 {
-    fatal("Trying to optimize abstract class ast_binaryrelation.");
+    fatal("Trying to calculate abstract class ast_binrelation.");
+    return 0;
+}
+long ast_binaryrelation::calculate_real(double arg1, double arg2)
+{
+    fatal("Trying to calculate abstract class ast_binrelation.");
+    return 0;
+}
+long ast_binaryoperation::calculate_int(long arg1, long arg2)
+{
+    fatal("Trying to calculate abstract class ast_binoperation.");
+    return 0;
+}
+double ast_binaryoperation::calculate_real(double arg1, double arg2)
+{
+    fatal("Trying to calculate abstract class ast_binoperation.");
+    return 0;
 }
 
-
+long ast_unaryoperation::calculate_int(long arg)
+{
+    fatal("Trying to calculate abstract class ast_unaryoperation.");
+    return 0;
+}
+double ast_unaryoperation::calculate_real(double arg)
+{
+    fatal("Trying to calculate abstract class ast_unaryoperation.");
+    return 0;
+}
 
 /*** The optimize methods for the concrete AST classes. ***/
 
@@ -164,71 +127,135 @@ void ast_indexed::optimize()
 ast_expression *ast_optimizer::fold_constants(ast_expression *node)
 {
     node->optimize();
-    if(optimizer->is_var(node)){
-        return  node;
-    }else
-    if(optimizer->is_const(node)){
-        
-    }else
-    if(optimzer->is_binop(node)){
-        ast_binaryoperation *binop = node->get_ast_binop();
-        if(binop->type == integer_type){
-            ast_integer *left_int  = ast_binop->left->get_ast_integer();
-            ast_integer *right_int = ast_binop->right->get_ast_integer();
-            if(left_int != NULL && right_int != NULL){
-                return new ast_integer(node->pos, ast_binop->calculate(
-                                                        right_int->alue,
-                                                        left_int->value)); 
+    switch(node->tag){
+        case AST_INDEXED:
+        case AST_FUNCTIONCALL:
+        case AST_INTEGER:
+        case AST_REAL:
+            return node;
+        case AST_ID:{
+            symbol *id_sym = sym_tab->get_symbol(node->get_ast_id()->sym_p);
+            if (id_sym->tag == SYM_CONST){
+                if(node->type == integer_type){
+                    long val_i = id_sym->get_constant_symbol()->const_value.ival;
+                    return new ast_integer(node->pos, val_i);
+                }else
+                if(node->type == real_type){
+                    double val_r = id_sym->get_constant_symbol()->const_value.rval;
+                    return new ast_real(node->pos, val_r);
+                }else
+                    fatal("strange id type");
+                    return NULL;
             }else
                 // could not optimize
                 return node;
-        }else
-        if(binop->type == real_type){
-            ast_real *left_real  = ast_binop->left->get_ast_real();
-            ast_real *right_real = ast_binop->right->get_ast_real();
-            if(left_int != NULL && right_int != NULL){
-                return new ast_real(node->pos, ast_binop(
-                                                        right_int->value,
-                                                        left_int->value)); 
-            }else
-                // could not optimize
+        }
+        case AST_CAST:{
+            ast_cast *node_cast = node->get_ast_cast();
+            ast_integer *node_num_int = node_cast->expr->get_ast_integer();
+            if(node_num_int != NULL)
+                return new ast_real(node->pos, node_num_int->value);
+            else
+                // could not optimze
                 return node;
-        }else
-            //something went wront        
-            fatal("strange binary operation type");
-            return NULL        
-    }else
-    if (optimzer->is_binrel){
-        ast_binaryrelation *binrel = node_get_ast_binrel();
-        if(binrel->type == integer_type){
-            ast_integer *left_int  = ast_binrel->left->get_ast_integer();
-            ast_integer *right_int = ast_binrel->right->get_ast_integer();
-            if(left_int != NULL && right_int != NULL){
-                return new ast_integer(node->pos, ast_binrel->calculate(
-                                                        right_int->alue,
-                                                        left_int->value)); 
+        }
+        case AST_ADD:
+        case AST_SUB:
+        case AST_MULT:
+        case AST_DIVIDE:
+        case AST_OR:
+        case AST_AND:
+        case AST_IDIV:
+        case AST_MOD: {
+            ast_binaryoperation *binop = node->get_ast_binaryoperation();
+            if(binop->type == integer_type){
+                ast_integer *left_int  = binop->left->get_ast_integer();
+                ast_integer *right_int = binop->right->get_ast_integer();
+                if(left_int != NULL && right_int != NULL){
+                    return new ast_integer(node->pos, binop->calculate_int(
+                                                            left_int->value,
+                                                            right_int->value));
+                }else
+                    // could not optimize
+                    return node;
             }else
-                // could not optimize
-                return node;
-        }else
-        if(binrel->type == real_type){
-            ast_real *left_real  = ast_binrel->left->get_ast_real();
-            ast_real *right_real = ast_binrel->right->get_ast_real();
-            if(left_int != NULL && right_int != NULL){
-                return new ast_integer(node->pos, ast_binrel(
-                                                        right_int->value,
-                                                        left_int->value)); 
+            if(binop->type == real_type){
+                ast_real *left_real  = binop->left->get_ast_real();
+                ast_real *right_real = binop->right->get_ast_real();
+                if(left_real != NULL && right_real != NULL){
+                    return new ast_real(node->pos, binop->calculate_real(
+                                                            left_real->value,
+                                                            right_real->value));
+                }else
+                    // could not optimize
+                    return node;
             }else
-                // could not optimize
-                return node;
-        }else
-            //something went wront        
-            fatal("strange binary operation type");
-            return NULL        
-        
-    }else
-        fatal("what is this");
-        return NULL;
+                fatal("strange binary operation type");
+                return NULL;
+        }
+        case AST_EQUAL:
+        case AST_NOTEQUAL:
+        case AST_LESSTHAN:
+        case AST_GREATERTHAN: {
+            ast_binaryrelation *binrel = node->get_ast_binaryrelation();
+            if(binrel->type == integer_type){
+                ast_integer *left_int  = binrel->left->get_ast_integer();
+                ast_integer *right_int = binrel->right->get_ast_integer();
+                if(left_int != NULL && right_int != NULL){
+                    return new ast_integer(node->pos, binrel->calculate_int(
+                                                            left_int->value,
+                                                            right_int->value));
+                }else
+                    // could not optimize
+                    return node;
+            }else
+            if(binrel->type == real_type){
+                ast_real *left_real  = binrel->left->get_ast_real();
+                ast_real *right_real = binrel->right->get_ast_real();
+                if(left_real != NULL && right_real != NULL){
+                    return new ast_integer(node->pos, binrel->calculate_real(
+                                                            left_real->value,
+                                                            right_real->value));
+                }else
+                    // could not optimize
+                    return node;
+            }else
+                //something went wrong
+                fatal("strange binary operation type");
+                return NULL;
+        }
+        case AST_UMINUS:
+        case AST_NOT:{
+            ast_unaryoperation *unop = node->get_ast_unaryoperation();
+            if(unop->type == integer_type){
+                ast_integer *expr_int  = unop->expr->get_ast_integer();
+                if(expr_int != NULL){
+                    return new ast_integer(node->pos, unop->calculate_int(
+                                                            expr_int->value));
+                }else
+                    // could not optimize
+                    return node;
+            }else
+            if(unop->type == real_type){
+                ast_real *expr_real = unop->expr->get_ast_real();
+                if(expr_real != NULL){
+                    return new ast_integer(node->pos, unop->calculate_real(
+                                                            expr_real->value));
+                }else
+                    // could not optimize
+                    return node;
+            }else
+                //something went wrong
+                fatal("strange binary operation type");
+                return NULL;
+        }
+        default:{
+            fatal("what is this");
+            return NULL;
+        }
+    }
+    fatal("what is this");
+    return NULL;
 }
 
 /* All the binary operations should already have been detected in their parent
@@ -239,29 +266,123 @@ void ast_binaryoperation::optimize()
     right = optimizer->fold_constants(right);
 }
 
+void ast_binaryrelation::optimize()
+{
+    left  = optimizer->fold_constants(left);
+    right = optimizer->fold_constants(right);
+}
 
-
+void ast_unaryoperation::optimize()
+{
+    expr  = optimizer->fold_constants(expr);
+}
 
 /* We can apply constant folding to binary relations as well. */
-void ast_equal::optimize()
+
+long ast_add::calculate_int(long arg1, long arg2)
 {
-    /* Your code here */
+    return arg1 + arg2;
+}
+double ast_add::calculate_real(double arg1, double arg2)
+{
+    return arg1 + arg2;
 }
 
-void ast_notequal::optimize()
+long ast_sub::calculate_int(long arg1, long arg2)
 {
-    /* Your code here */
+    return arg1 - arg2;
+}
+double ast_sub::calculate_real(double arg1, double arg2)
+{
+    return arg1 - arg2;
 }
 
-void ast_lessthan::optimize()
+long ast_or::calculate_int(long arg1, long arg2)
 {
-    /* Your code here */
+    return arg1 || arg2;
 }
 
-void ast_greaterthan::optimize()
+long ast_and::calculate_int(long arg1, long arg2)
 {
-    /* Your code here */
+    return arg1 && arg2;
 }
+
+long ast_mult::calculate_int(long arg1, long arg2)
+{
+    return arg1 * arg2;
+}
+double ast_mult::calculate_real(double arg1, double arg2)
+{
+    return arg1 * arg2;
+}
+
+long ast_divide::calculate_int(long arg1, long arg2)
+{
+    return arg1 / arg2;
+}
+double ast_divide::calculate_real(double arg1, double arg2)
+{
+    return arg1 / arg2;
+}
+
+long ast_idiv::calculate_int(long arg1, long arg2)
+{
+    return arg1 / arg2;
+}
+
+long ast_mod::calculate_int(long arg1, long arg2)
+{
+    return arg1 % arg2;
+}
+
+// relations
+long ast_equal::calculate_int(long arg1, long arg2)
+{
+    return arg1 == arg2;
+}
+long ast_equal::calculate_real(double arg1, double arg2)
+{
+    return arg1 == arg2;
+}
+
+long ast_notequal::calculate_int(long arg1, long arg2)
+{
+    return (arg1 != arg2);
+}
+long ast_notequal::calculate_real(double arg1, double arg2)
+{
+    return arg1 != arg2;
+}
+
+long ast_lessthan::calculate_int(long arg1, long arg2)
+{
+    return arg1 < arg2;
+}
+long ast_lessthan::calculate_real(double arg1, double arg2)
+{
+    return arg1 < arg2;
+}
+
+long ast_greaterthan::calculate_int(long arg1, long arg2)
+{
+    return arg1 > arg2;
+}
+long ast_greaterthan::calculate_real(double arg1, double arg2)
+{
+    return arg1 > arg2;
+}
+
+double ast_uminus::calculate_real(double arg){
+    return (-1)* arg;
+}
+long ast_uminus::calculate_int(long arg){
+    return (-1)* arg;
+}
+
+long ast_not::calculate_int(long arg){
+    return (! arg);
+}
+
 
 
 
@@ -269,74 +390,71 @@ void ast_greaterthan::optimize()
 
 void ast_procedurecall::optimize()
 {
-    /* Your code here */
+    parameter_list->optimize();
 }
 
 
 void ast_assign::optimize()
 {
-    /* Your code here */
+    rhs = optimizer->fold_constants(rhs);
 }
 
 
 void ast_while::optimize()
 {
-    /* Your code here */
+    condition = optimizer->fold_constants(condition);
+    body->optimize();
 }
 
 
 void ast_if::optimize()
 {
-    /* Your code here */
+    condition = optimizer->fold_constants(condition);
+    if(body != NULL)
+        body->optimize();
+    if(elsif_list != NULL)
+        elsif_list->optimize();
+    if(else_body != NULL)
+        else_body->optimize();
 }
 
 
 void ast_return::optimize()
 {
-    /* Your code here */
+    value = optimizer->fold_constants(value);
 }
 
 
 void ast_functioncall::optimize()
 {
-    /* Your code here */
+    parameter_list->optimize();
 }
 
-void ast_uminus::optimize()
-{
-    /* Your code here */
-}
-
-void ast_not::optimize()
-{
-    /* Your code here */
-}
 
 
 void ast_elsif::optimize()
 {
-    /* Your code here */
+    condition = optimizer->fold_constants(condition);
+    body->optimize();
 }
 
 
 
 void ast_integer::optimize()
 {
-    /* Your code here */
+    // nothing todo
 }
 
 void ast_real::optimize()
 {
-    /* Your code here */
+    // nothing todo
 }
 
 /* Note: See the comment in fold_constants() about casts and folding. */
 void ast_cast::optimize()
 {
-    /* Your code here */
+    expr = optimizer->fold_constants(expr);
 }
-
-
 
 void ast_procedurehead::optimize()
 {

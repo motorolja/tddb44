@@ -71,9 +71,11 @@ AST_NODE
      |
      +- AST_FUNCTIONCALL
      |
-     +- AST_UMINUS
-     |
-     +- AST_NOT
+     +- AST_UNARYOPERATION
+     |  |
+     |  +- AST_UMINUS
+     |  |
+     |  +- AST_NOT
      |
      +- AST_INTEGER
      |
@@ -94,6 +96,7 @@ enum ast_node_types {
     AST_EXPRESSION,
     AST_BINARYOPERATION,
     AST_BINARYRELATION,
+    AST_UNARYOPERATION,
     AST_LVALUE,
     AST_EXPR_LIST,
     AST_STMT_LIST,
@@ -142,6 +145,8 @@ class quad_list;
 /* Class stubs to allow referencing the classes below before they're declared.
    See below. */
 class ast_binaryoperation;
+class ast_binaryrelation;
+class ast_unaryoperation;
 class ast_stmt_list;
 class ast_id;
 class ast_integer;
@@ -279,6 +284,16 @@ public:
         fatal("Illegal downcast to ast_binaryoperation from ast_expression");
         return NULL;
     }
+    virtual ast_binaryrelation *get_ast_binaryrelation() {
+        fatal("Illegal downcast to ast_binaryoperation from ast_expression");
+        return NULL;
+    }
+    virtual ast_unaryoperation *get_ast_unaryoperation() {
+        fatal("Illegal downcast to ast_unaryoperation from ast_expression");
+        return NULL;
+    }
+
+
 };
 
 
@@ -306,12 +321,49 @@ public:
     // It's an error if this method is called. See the derived classes.
     virtual sym_index type_check();
 
+    virtual long calculate_int(long, long);
+    virtual long calculate_real(double, double);
+
     virtual void optimize();
 
     virtual sym_index generate_quads(quad_list &) = 0;
+
+    virtual ast_binaryrelation *get_ast_binaryrelation() {
+        fatal("Illegal downcast to ast_binaryrelation from ast_expression");
+        return NULL;
+    }
+
 };
 
+class ast_unaryoperation : public ast_expression
+{
+protected:
+    virtual void print(ostream &);
 
+    virtual void xprint(ostream &, string);
+public:
+    // children of the relation.
+    ast_expression *expr;
+    // Constructor.
+    ast_unaryoperation(position_information *,
+                       ast_expression *,
+                       sym_index);
+
+    // It's an error if this method is called. See the derived classes.
+    virtual sym_index type_check();
+
+    virtual long calculate_int(long);
+    virtual double calculate_real(double);
+
+    virtual void optimize();
+
+    virtual sym_index generate_quads(quad_list &) = 0;
+
+    virtual ast_unaryoperation *get_ast_unaryoperation() {
+        fatal("Illegal downcast to ast_unaryoperation from ast_expression");
+        return NULL;
+    }
+};
 
 /* Base class for all binary operation nodes. "a + b", etc.
    Note: the left and right operands are defined here instead of in the
@@ -335,6 +387,9 @@ public:
 
     // It's an error if these methods are called. See the derived classes.
     virtual sym_index type_check();
+
+    virtual long calculate_int(long, long);
+    virtual double calculate_real(double, double);
 
     virtual void optimize();
 
@@ -731,48 +786,49 @@ public:
 
 
 /* A unary minus node. */
-class ast_uminus : public ast_expression
+class ast_uminus : public ast_unaryoperation
 {
 protected:
     virtual void print(ostream &);
 public:
-    // The inverted expression.
-    ast_expression *expr;
-
     // Constructor.
     ast_uminus(position_information *, ast_expression *);
 
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long);
+    virtual double calculate_real(double);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
+
+    virtual ast_uminus *get_ast_unaryoperation() {
+        return this;
+    }
 };
 
 
 /* A logical negation node. */
-class ast_not : public ast_expression
+class ast_not : public ast_unaryoperation
 {
 protected:
     virtual void print(ostream &);
 public:
-    // The expression being negated.
-    ast_expression *expr;
-
     // Constructor.
     ast_not(position_information *, ast_expression *);
 
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
+
+    virtual ast_not *get_ast_unaryoperation() {
+        return this;
+    }
 };
 
 
@@ -874,11 +930,15 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
+    virtual long calculate_real(double, double);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
+
+    virtual ast_equal *get_ast_binaryrelation() {
+        return this;
+    }
 };
 
 
@@ -894,11 +954,15 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
+    virtual long calculate_real(double, double);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
+
+    virtual ast_notequal *get_ast_binaryrelation() {
+        return this;
+    }
 };
 
 
@@ -914,11 +978,15 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
+    virtual long calculate_real(double, double);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
+
+    virtual ast_lessthan *get_ast_binaryrelation() {
+        return this;
+    }
 };
 
 
@@ -934,11 +1002,15 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
+    virtual long calculate_real(double, double);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
+
+    virtual ast_greaterthan *get_ast_binaryrelation() {
+        return this;
+    }
 };
 
 
@@ -958,8 +1030,8 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
+    virtual double calculate_real(double, double);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -983,8 +1055,8 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
+    virtual double calculate_real(double, double);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1008,8 +1080,7 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1033,8 +1104,7 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1058,8 +1128,8 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
+    virtual double calculate_real(double, double);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1083,8 +1153,8 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
+    virtual double calculate_real(double, double);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1108,8 +1178,7 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1133,8 +1202,7 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+    virtual long calculate_int(long, long);
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
