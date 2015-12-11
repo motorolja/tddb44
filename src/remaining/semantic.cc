@@ -206,24 +206,25 @@ sym_index semantic::check_binop1(ast_binaryoperation *node)
       node->type = integer_type;
       return integer_type;
     }
-    else if((left_type == integer_type || left_type == real_type)
-            && (right_type == integer_type || right_type == real_type)) {
-      if(left_type == integer_type){
-        // insert casting to real_type
-        node->left = new ast_cast(node->left->pos, node->left);
-      }
-      else {
-        // insert casting to real_type
-        node->right = new ast_cast(node->right->pos, node->right);
-      }
-      node->type = real_type;
-      return real_type;
-    }
-    else {
-      // We have a bad type in left or right
-      type_error(node->pos) << ErrorMap[UNIFICATION_INVALID_TYPE] << endl;
-      return void_type;
-    }
+
+    if (left_type != right_type){
+        if(left_type == integer_type && right_type == real_type){
+            // insert casting to real_type
+            node->left = new ast_cast(node->left->pos, node->left);
+            node->type = real_type;
+            return real_type;
+        }else
+        if(left_type == real_type && right_type == integer_type){
+            // insert casting to real_type
+            node->right = new ast_cast(node->right->pos, node->right);
+            node->type = real_type;
+            return real_type;
+        }else
+            fatal("suspicious types");
+            return void_type;
+    }else
+        node->type = left_type;
+        return node->type;
 }
 
 sym_index ast_add::type_check()
@@ -337,28 +338,25 @@ sym_index semantic::check_binrel(ast_binaryrelation *node)
       type_error(node->pos) << ErrorMap[BINARYRELATION_VOID] << endl;
       return void_type;
     }
-    // NOTE TO SELF: Should we handle conditions with strings and chars? eg char a > char b || string 1 == string 2
-    if((left_type == integer_type || left_type == real_type)
-            && (right_type == integer_type || right_type == real_type)) {
-      if(left_type == integer_type){
-        // insert casting to real_type
-        node->left = new ast_cast(node->left->pos, node->left);
-      }
-      else {
-        // insert casting to real_type
-        node->right = new ast_cast(node->right->pos, node->right);
-      }
-      node->type = integer_type;
-      return integer_type;
-    }
-    else if (left_type == integer_type && right_type == integer_type) {
-      node->type = integer_type;
-      return integer_type;
-    }
-    else {
-      type_error(node->pos) << ErrorMap[BINARYRELATION_INVALID_TYPE] << endl;
-      return void_type;
-    }
+
+    if (left_type != right_type){
+        if(left_type == integer_type && right_type == real_type){
+            // insert casting to real_type
+            node->left = new ast_cast(node->left->pos, node->left);
+            node->type = real_type;
+            return real_type;
+        }else
+        if(left_type == real_type && right_type == integer_type){
+            // insert casting to real_type
+            node->right = new ast_cast(node->right->pos, node->right);
+            node->type = real_type;
+            return real_type;
+        }else
+            fatal("suspicious types");
+            return void_type;
+    }else
+        node->type = left_type;
+        return node->type;
 }
 
 sym_index ast_equal::type_check()
