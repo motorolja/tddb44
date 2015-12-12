@@ -333,6 +333,7 @@ sym_index semantic::check_binrel(ast_binaryrelation *node)
     // only return interger type; 
     sym_index left_type = node->left->type_check(); 
     sym_index right_type = node->right->type_check();
+    node->type = integer_type;
 
     if (left_type == void_type || right_type == void_type) {
       type_error(node->pos) << ErrorMap[BINARYRELATION_VOID] << endl;
@@ -343,20 +344,17 @@ sym_index semantic::check_binrel(ast_binaryrelation *node)
         if(left_type == integer_type && right_type == real_type){
             // insert casting to real_type
             node->left = new ast_cast(node->left->pos, node->left);
-            node->type = real_type;
-            return real_type;
+            return integer_type;
         }else
         if(left_type == real_type && right_type == integer_type){
             // insert casting to real_type
             node->right = new ast_cast(node->right->pos, node->right);
-            node->type = real_type;
-            return real_type;
+            return integer_type;
         }else
             fatal("suspicious types");
             return void_type;
     }else
-        node->type = left_type;
-        return node->type;
+        return integer_type;
 }
 
 sym_index ast_equal::type_check()
