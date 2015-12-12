@@ -435,7 +435,8 @@ void ast_functioncall::optimize()
 void ast_elsif::optimize()
 {
     condition = optimizer->fold_constants(condition);
-    body->optimize();
+    if(body != NULL)
+        body->optimize();
 }
 
 
