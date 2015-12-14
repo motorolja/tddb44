@@ -184,9 +184,10 @@ sym_index symbol_table::gen_temp_var(sym_index type)
   }
 
   // set a string to $N where N is the number or temporary variables
-  string tmp = "$" + temporary_variables++;
   // install the new variable
-  pool_index p_index = pool_install(const_cast<char*>(tmp.c_str()));
+  char *temp = new char[9];
+  sprintf(temp, "$%d", temporary_variables++);
+  pool_index p_index = pool_install(temp);
   position_information *pos = new position_information(0,0);
 	return enter_variable(pos,p_index,type);
 }
