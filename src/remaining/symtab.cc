@@ -18,7 +18,7 @@ sym_index void_type;
 sym_index integer_type;
 sym_index real_type;
 
-
+static unsigned temporary_variables = 0;
 
 /*** The symbol_table class - watch out, it's big. ***/
 
@@ -171,8 +171,25 @@ long symbol_table::get_next_label()
    an error. This method is used for quad generation. */
 sym_index symbol_table::gen_temp_var(sym_index type)
 {
-	/* Your code here */
-	return NULL_SYM;
+
+	if (type == void_type) {
+    fatal("Fatal, not allowed to generate temporary variable of void type");
+    return -2;
+  }
+
+  // not allowed with to many temporary variables
+  if (temporary_variables > 1000000) {
+    fatal("It is not allowed to use more than 1 million temporary variables");
+    return -3;
+  }
+
+  // set a string to $N where N is the number or temporary variables
+  // install the new variable
+  char *temp = new char[9];
+  sprintf(temp, "$%d", temporary_variables++);
+  pool_index p_index = pool_install(temp);
+  position_information *pos = new position_information(0,0);
+	return enter_variable(pos,p_index,type);
 }
 
 

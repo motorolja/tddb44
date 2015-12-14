@@ -4,7 +4,8 @@
 PARSER="-parser"
 SEMANTIC="-semantic"
 OPTIMIZATION="-optimization"
-FLAGS="$PARSER,$SEMANTIC,$OPTIMIZATION"
+BINARY="-binary"
+FLAGS="$PARSER,$SEMANTIC,$OPTIMIZATION,$BINARY"
 
 TEST_PATH="../testpgm/"
 
@@ -22,6 +23,9 @@ then
 elif [ "$1" == "$OPTIMIZATION" ]
 then
     ./diesel -b -p -a ""$TEST_PATH"opttest1.d"
+elif [ "$1" == "$BINARY" ]
+then
+    ./diesel -b -q -y ""$TEST_PATH"quadtest1.d"
 else
     echo "Invalid or no flag set, use either of following flags: $FLAGS"
 fi

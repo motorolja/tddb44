@@ -145,22 +145,88 @@ sym_index ast_id::generate_quads(quad_list &q)
 sym_index ast_integer::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    sym_index temp_index = sym_tab->gen_temp_var(integer_type);
+    // value - internal in ast_integer, q_iload - enum quads.hh, q - quads list
+    q += new quadruple(q_iload, sym_tab->ieee(value), NULL_SYM, temp_index);
+    return temp_index;
 }
 
 
 sym_index ast_real::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    sym_index temp_index = sym_tab->gen_temp_var(real_type);
+    // value - internal in ast_integer, q_rload - enum quads.hh, q - quads list
+    q += new quadruple(q_rload, sym_tab->ieee(value), NULL_SYM, temp_index);
+    return temp_index;
 }
 
 
 /* Expressions of various kinds. */
+// All quat_int and quad_real match to the coresponding real and integer quadruple operation of the ast nodes
+sym_index do_binaryoperation(quad_list &q, quad_op_type quad_int, quad_op_type quad_real, ast_binaryoperation * node) {
+  // maybe we should return something else if it fails, -3 was just taken out of the blue
+  sym_index temp_index = -3, left_index, right_index;
+  if (node->type == integer_type) {
+    left_index = node->left->generate_quads(q);
+    right_index = node->right->generate_quads(q);
+    temp_index = sym_tab->gen_temp_var(integer_type);
+    q += new quadruple(quad_int, left_index, right_index, temp_index);
+  }
+  else if (node->type == real_type) {
+    left_index = node->left->generate_quads(q);
+    right_index = node->right->generate_quads(q);
+    temp_index = sym_tab->gen_temp_var(real_type);
+    q += new quadruple(quad_real, left_index, right_index, temp_index);
+  }
+  else {
+    fatal("Invalid type of ast_binaryoperation node, should not happen!!");
+  }
+  return temp_index;
+}
+
+sym_index do_special_operation(quad_list &q, quad_op_type quad_int, quad_op_type quad_real, ast_expression * node) {
+  // maybe we should return something else if it fails, -3 was just taken out of the blue
+  sym_index temp_index = -3, special_index;
+  if (node->type == integer_type) {
+    special_index = node->generate_quads(q);
+    temp_index = sym_tab->gen_temp_var(integer_type);
+    q += new quadruple(quad_int, special_index, special_index, temp_index);
+  }
+  else if (node->type == real_type) {
+    special_index = node->generate_quads(q);
+    temp_index = sym_tab->gen_temp_var(real_type);
+    q += new quadruple(quad_real, special_index, NULL_SYM, temp_index);
+  }
+  else {
+    fatal("Invalid type of ast_expression node, should not happen!!");
+  }
+  return temp_index;
+}
+
+sym_index do_binaryrelation(quad_list &q, quad_op_type quad_int, quad_op_type quad_real, ast_binaryrelation * node) {
+  // maybe we should return something else if it fails, -3 was just taken out of the blue
+  sym_index temp_index = -3, left_index, right_index;
+  if (node->left->type == integer_type && node->right->type == integer_type) {
+    left_index = node->left->generate_quads(q);
+    right_index = node->right->generate_quads(q);
+    temp_index = sym_tab->gen_temp_var(integer_type);
+    q += new quadruple(quad_int, left_index, right_index, temp_index);
+  }
+  else if (node->left->type == real_type && node->right->type == real_type) {
+    left_index = node->left->generate_quads(q);
+    right_index = node->right->generate_quads(q);
+    temp_index = sym_tab->gen_temp_var(real_type);
+    q += new quadruple(quad_real, left_index, right_index, temp_index);
+  }
+  else {
+    fatal("Invalid type of left or right in ast_binaryrelation, should not happen!!");
+  }
+  return temp_index;
+}
 
 
+// which functions? was empty here before
 /* These three following methods are extremely similar, and we could have
    written a static do_unary function above to handle them. To be able to
    do so, we'd have to pass on more arguments than we are to the two
@@ -169,81 +235,77 @@ sym_index ast_real::generate_quads(quad_list &q)
 sym_index ast_not::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    // expr - internal variable in ast_not
+    return do_special_operation(q, q_inot, q_inot, expr);
 }
 
 
 sym_index ast_uminus::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_special_operation(q, q_iuminus, q_ruminus, expr);
 }
 
 
 sym_index ast_cast::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    // TODO: special case
+    // ast_expression* ast_cast::expr the expression we have casted to real
+    sym_index quad_index = expr->generate_quads(q);
+    sym_index temp_index = sym_tab->gen_temp_var(real_type);
+    // q_itor - type conversion from integer to real (result)
+    q += new quadruple(q_itor, quad_index, NULL_SYM, temp_index);
+    return temp_index;
 }
 
 
 sym_index ast_add::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_iplus, q_rplus, this);
 }
 
 sym_index ast_sub::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_iminus, q_rminus, this);
 }
 
 sym_index ast_mult::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_imult, q_rmult, this);
 }
 
 sym_index ast_divide::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_idivide, q_rdivide, this);
 }
 
 sym_index ast_idiv::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_idivide, q_idivide, this);
 }
 
 sym_index ast_mod::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_imod, q_imod, this);
 }
 
 sym_index ast_or::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_ior, q_ior, this);
 }
 
 sym_index ast_and::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryoperation(q, q_iand, q_iand, this);
 }
 
 
@@ -251,32 +313,26 @@ sym_index ast_and::generate_quads(quad_list &q)
 sym_index ast_equal::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryrelation(q, q_ieq, q_req, this);
 }
 
 sym_index ast_notequal::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryrelation(q, q_ine, q_rne, this);
 }
 
 sym_index ast_lessthan::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryrelation(q, q_ilt, q_rlt, this);
 }
 
 sym_index ast_greaterthan::generate_quads(quad_list &q)
 {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return do_binaryrelation(q, q_igt, q_rgt, this);
 }
-
-
 
 
 /* Since an lvalue can be either an id or an array reference, we can't solve
@@ -327,12 +383,27 @@ sym_index ast_assign::generate_quads(quad_list &q)
    to get the total number of parameters so we can generate a correct q_call
    quad for the new function/procedure that the parameters belong to.
     */
+
+// changed parameter_symbol *last_param to ast_expr_list* type
+// void ast_expr_list::generate_parameter_list(quad_list &q, parameter_symbol *last_param, int *nr_params)
+
+/*void ast_expr_list::generate_parameter_list(quad_list &q, parameter_symbol *last_param, int *nr_params) {
+  USE_Q;
+}
+*/
 void ast_expr_list::generate_parameter_list(quad_list &q,
-        parameter_symbol *last_param,
+        ast_expr_list *param_list,
         int *nr_params)
 {
-    USE_Q;
-    /* Your code here */
+  //USE_Q;
+  /* Your code here */
+  // TODO: Not sure if this does work, check back later
+  if (param_list != NULL) {
+      (*nr_params)++;
+      q += new quadruple(q_param,param_list->last_expr->generate_quads(q),NULL_SYM,NULL_SYM);
+      // recursive call with preceding parameter symbol, NULL if none
+      generate_parameter_list(q,param_list->preceding,nr_params);
+  }
 }
 
 
@@ -341,6 +412,11 @@ sym_index ast_procedurecall::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+    // TODO: Double check this later
+    int parameters = 0;
+    parameter_list->generate_parameter_list(q, parameter_list, &parameters);
+    q += new quadruple(q_call, id->sym_p, parameters, NULL_SYM);
+
     return NULL_SYM;
 }
 
@@ -350,7 +426,13 @@ sym_index ast_functioncall::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    int parameters = 0;
+    sym_index index_pos = sym_tab->gen_temp_var(type);
+    parameter_list->generate_parameter_list(q, parameter_list, &parameters);
+
+    q += new quadruple(q_call, id->sym_p, parameters, index_pos);
+
+    return index_pos;
 }
 
 
@@ -390,6 +472,20 @@ void ast_elsif::generate_quads_and_jump(quad_list &q, int label)
 {
     USE_Q;
     /* Your code here */
+    sym_index index_pos = condition->generate_quads(q);
+    int top = sym_tab->get_next_label();
+
+    // q_jmpf - conditional jump
+    q += new quadruple(q_jmpf, top, index_pos, NULL_SYM);
+
+    if (body != NULL) {
+      body->generate_quads(q);
+    }
+
+    // q_jmp - absolute jump
+    q += new quadruple(q_jmp, label, NULL_SYM, NULL_SYM);
+    // q_labl - label for jumping
+    q += new quadruple(q_labl, top, NULL_SYM, NULL_SYM);
 }
 
 
@@ -399,6 +495,10 @@ void ast_elsif_list::generate_quads_and_jump(quad_list &q, int label)
 {
     USE_Q;
     /* Your code here */
+    if (preceding != NULL) {
+      preceding->generate_quads_and_jump(q, label);
+    }
+    last_elsif->generate_quads_and_jump(q, label);
 }
 
 
@@ -407,6 +507,39 @@ sym_index ast_if::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+    sym_index index_pos = condition->generate_quads(q);
+    int top = sym_tab->get_next_label();
+    // q_jmpf - conditional jump
+    q += new quadruple(q_jmpf, top, index_pos, NULL_SYM);
+
+    int end = sym_tab->get_next_label();
+
+    if (body != NULL) {
+      body->generate_quads(q);
+      if (else_body != NULL || elsif_list != NULL) {
+        // q_jmp - absolute jump
+        q += new quadruple(q_jmp, end, NULL_SYM, NULL_SYM);
+      }
+    }
+    // incomplete function:
+
+    if (elsif_list != NULL) {
+      // q_labl - marks a jump point
+      q += new quadruple(q_labl, top, NULL_SYM, NULL_SYM);
+      // call to function above since it was pre-defined template function
+      elsif_list->generate_quads_and_jump(q, end);
+    }
+    else {
+      // q_labl - marks a jump point
+      q += new quadruple(q_labl, top, NULL_SYM, NULL_SYM);
+    }
+
+    if (else_body != NULL) {
+      // TODO: Fix run error when calling ast_stmt_list::generate_quads()
+      else_body->generate_quads(q);
+    }
+    // q_labl - marks a jump point
+    q += new quadruple(q_labl, end, NULL_SYM, NULL_SYM);
     return NULL_SYM;
 }
 
@@ -416,6 +549,27 @@ sym_index ast_return::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
+    // ast_expression* value - member variable
+    if (value != NULL) {
+      sym_index index_pos = value->generate_quads(q);
+      // value->type is of sym_index type and says integer_type, real_type etc
+      if (value->type == integer_type) {
+        // q_ireturn - return integer value, q.last_label - label marking the end of a quad list
+        q += new quadruple(q_ireturn, q.last_label, index_pos, NULL_SYM);
+      }
+      else if (value->type == real_type) { 
+        // q_rreturn - return real value
+        q += new quadruple(q_rreturn, q.last_label, index_pos, NULL_SYM);
+      }
+      else {
+        fatal("Unknown return type detected in ast_return::generate_quads() quads.cc");
+      }
+      return index_pos;
+    }
+    else {
+      // q_jmp - absolute jump
+      q += new quadruple(q_jmp, q.last_label, NULL_SYM, NULL_SYM);
+    }
     return NULL_SYM;
 }
 
@@ -425,7 +579,25 @@ sym_index ast_indexed::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    // ast_id* ast_indexed::id is a pointer to the arrays id node
+    sym_index lhs = id->generate_quads(q);
+    // ast_expression* ast_indexed::index is a pointer to the related expression
+    sym_index rhs = index->generate_quads(q);
+    // generate for reference
+    sym_index i = sym_tab->gen_temp_var(type);
+
+    // maybe we should check for other types? 
+    if (type == integer_type) {
+      q += new quadruple(q_irindex, lhs, rhs, i);
+    }
+    else if (type == real_type) {
+      q += new quadruple(q_rrindex, lhs, rhs, i);
+    }
+    else {
+      fatal("Unknown type detected in ast_indexed::generate_quads() quads.cc");
+    }
+
+    return i;
 }
 
 

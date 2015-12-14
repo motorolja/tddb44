@@ -189,7 +189,7 @@ sym_index ast_indexed::type_check()
     if (index->type_check() != integer_type){
         type_error(this->pos) << ErrorMap[INVALID_INDEX_TYPE] << endl;
     }
-    return id->type_check();
+    return type = id->type_check();
 }
 
 
