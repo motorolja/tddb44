@@ -65,6 +65,7 @@ void code_generator::prologue(symbol *new_env)
 {
     int ar_size;
     int label_nr;
+    block_level curr_level;
     // Used to count parameters.
     parameter_symbol *last_arg;
 
@@ -77,12 +78,14 @@ void code_generator::prologue(symbol *new_env)
         ar_size = align(proc->ar_size);
         label_nr = proc->label_nr;
         last_arg = proc->last_parameter;
+        curr_level = proc->level;
     } else if (new_env->tag == SYM_FUNC) {
         function_symbol *func = new_env->get_function_symbol();
         /* Make sure ar_size is a multiple of eight */
         ar_size = align(func->ar_size);
         label_nr = func->label_nr;
         last_arg = func->last_parameter;
+        curr_level = proc->level;
     } else {
         fatal("code_generator::prologue() called for non-proc/func");
         return;
@@ -98,8 +101,21 @@ void code_generator::prologue(symbol *new_env)
             << long_symbols << ")" << endl;
     }
 
-    /* Your code here */
-
+    //generate code to to create activation record when calling a function
+    out << "\t\t" << "push" << "\t" << "rbp" << endl;
+    out << "\t\t" << "mov" << "\t" << "rcx,rsp" << endl;
+    // allocate space for display
+    for (int i = 1; i<= curr_level; curr_level++) {
+        // push the 8 the value of the previous block
+        out << "\t\t" << "push" << "\t" << "[rbp-"<<STACK_WIDTH*i <<"]" << endl;
+    }
+    // push also the current
+    out << "\t\t" << "push" << "\t" << "rcx" << endl;
+    
+    // allocate space for local variables
+    out << "\t\t" << "mov" << "\t" << "rbp,rcx" << endl;
+    // and the stackpointer    
+    out << "\t\t" <<"sub" << "\t" << "rsp," << ar_size << endl;
     out << flush;
 }
 
