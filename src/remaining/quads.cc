@@ -138,7 +138,7 @@ sym_index ast_id::generate_quads(quad_list &q)
 {
     USE_Q;
     /* Your code here */
-    return NULL_SYM;
+    return sym_p;
 }
 
 
@@ -147,7 +147,7 @@ sym_index ast_integer::generate_quads(quad_list &q)
     USE_Q;
     sym_index temp_index = sym_tab->gen_temp_var(integer_type);
     // value - internal in ast_integer, q_iload - enum quads.hh, q - quads list
-    q += new quadruple(q_iload, sym_tab->ieee(value), NULL_SYM, temp_index);
+    q += new quadruple(q_iload, value, NULL_SYM, temp_index);
     return temp_index;
 }
 
