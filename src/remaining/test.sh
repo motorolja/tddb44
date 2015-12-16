@@ -10,6 +10,7 @@ FLAGS="$PARSER,$SEMANTIC,$OPTIMIZATION,$BINARY,$CODE"
 
 TEST_PATH="../testpgm/"
 
+gcc -c diesel_rts.c -o diesel_rts.o -Wall -m64
 make
 
 if [ "$1" == "$PARSER" ]
