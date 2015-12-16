@@ -421,7 +421,8 @@ void ast_if::optimize()
 
 void ast_return::optimize()
 {
-    value = optimizer->fold_constants(value);
+    if (value != NULL)
+	value = optimizer->fold_constants(value);
 }
 
 
