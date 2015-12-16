@@ -390,7 +390,8 @@ long ast_not::calculate_int(long arg){
 
 void ast_procedurecall::optimize()
 {
-    parameter_list->optimize();
+    if(parameter_list != NULL)
+        parameter_list->optimize();
 }
 
 
@@ -428,7 +429,8 @@ void ast_return::optimize()
 
 void ast_functioncall::optimize()
 {
-    parameter_list->optimize();
+    if(parameter_list != NULL)
+        parameter_list->optimize();
 }
 
 
