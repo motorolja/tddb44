@@ -238,7 +238,7 @@ void code_generator::store(register_type src, sym_index sym_p)
     symbol *sym = sym_tab->get_symbol(sym_p);
     if(sym->tag == SYM_PARAM){
         out << "\t\t" << "mov" << "\t";
-        out <<"[rbp" << offset <<"],";
+        out <<"[rbp-" << offset <<"],";
         register_foo(src);
         out << endl;
     }else
@@ -298,7 +298,7 @@ void code_generator::expand(quad_list *q_list)
         // Debug output.
         if (assembler_trace) {
             out << "\t" << "# QUAD " << quad_nr << ": (" 
-                << short_symbols << q << long_symbols << ")" << endl;
+                << short_symbols << q << long_symbols << endl;
         }
 
         // The main switch on quad type. This is where code is actually
@@ -631,7 +631,6 @@ void code_generator::expand(quad_list *q_list)
 
         case q_call: {
             symbol *sym = sym_tab->get_symbol(q->sym1);
-            out << "\t\t" << "call"<< "\t"; 
             if(sym->tag == SYM_FUNC){
                 function_symbol *func_sym = sym->get_function_symbol(); 
                 out <<"\t\t" << "call"<< "\t" << "L" << func_sym->label_nr<< endl;
