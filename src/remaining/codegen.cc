@@ -225,11 +225,10 @@ void code_generator::store(register_type src, sym_index sym_p)
     int level, offset;
     // here we have to use the level
     find(sym_p,&level, &offset);
-
     symbol *sym = sym_tab->get_symbol(sym_p);
     if(sym->tag == SYM_PARAM){
         out << "\t\t" << "mov" << "\t"
-        <<"[rcx-" << offset <<"],"
+        <<"[rbp+" << offset <<"],"
         << reg[src] << endl;
     }else
     if(sym->tag == SYM_VAR){
