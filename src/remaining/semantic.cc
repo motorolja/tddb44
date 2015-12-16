@@ -383,7 +383,8 @@ sym_index ast_greaterthan::type_check()
 sym_index ast_procedurecall::type_check()
 {
     //check wether the parameters are the same as bla????
-    type_checker->check_parameters(id, parameter_list);
+    if(parameter_list != NULL)
+        type_checker->check_parameters(id, parameter_list);
     return void_type;
 }
 
@@ -487,7 +488,8 @@ sym_index ast_return::type_check()
 
 sym_index ast_functioncall::type_check()
 {
-    type_checker->check_parameters(id, parameter_list);
+    if(parameter_list != NULL)
+        type_checker->check_parameters(id, parameter_list);
     return sym_tab->get_symbol_type(id->sym_p);
 }
 
