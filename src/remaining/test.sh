@@ -6,7 +6,9 @@ SEMANTIC="-semantic"
 OPTIMIZATION="-optimization"
 BINARY="-binary"
 CODE="-code"
-FLAGS="$PARSER,$SEMANTIC,$OPTIMIZATION,$BINARY,$CODE"
+ALL="-all"
+FLAGS="$PARSER,$SEMANTIC,$OPTIMIZATION,$BINARY,$CODE,$ALL"
+TEST_FILES=("codetest1" "quadtest1" "8q")
 
 TEST_PATH="../testpgm/"
 
@@ -31,6 +33,16 @@ then
 elif [ "$1" == "$CODE" ]
 then
     ./diesel -q -a -t -y  ""$TEST_PATH"codetest1.d"
+elif [ "$1" == "$ALL" ]
+then
+
+for test_file  in ${TEST_FILES[*]}
+do
+    echo "compiling: $test_file"
+    ./diesel -o $test_file".o" ""$TEST_PATH""$test_file".d"
+    echo "execute: $test_file "
+    ./$test_file".o"
+done
 else
     echo "Invalid or no flag set, use either of following flags: $FLAGS"
 fi
