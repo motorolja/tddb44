@@ -56,9 +56,9 @@ TEST_PATH="../testpgm/others"
 for test_file_nr  in ${EASY_FILES_GOOD[*]}
 do
     echo "compiling: $test_file_nr"
-    ./diesel  -t -o out/pgm$test_file_nr".o" ""$TEST_PATH"/pgm"$test_file_nr".d"
+    ./diesel -t -o out/pgm$test_file_nr".o" ""$TEST_PATH"/pgm"$test_file_nr".d" > out/pgm$test_file_nr".errors"
     echo "execute: out/pgm $test_file_nr"
-    ./out/pgm$test_file_nr".o"
+    ./out/pgm$test_file_nr".o" > out/pgm$test_file_nr".output"
 done
 else
     echo "Invalid or no flag set, use either of following flags: $FLAGS"
