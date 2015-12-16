@@ -761,14 +761,16 @@ sym_index symbol_table::enter_constant(position_information *pos,
 {
 	// Install a constant_symbol in the symbol table.
 	sym_index sym_p = install_symbol(pool_p, SYM_CONST);
-	constant_symbol *con = sym_table[sym_p]->get_constant_symbol();
-
+    symbol *sym = sym_tab->get_symbol(sym_p);
 	// Make sure it's not already been declared.
-	if (con->tag != SYM_UNDEF) {
-		type_error(pos) << "Redeclaration: " << con << endl;
+	if (sym->tag != SYM_UNDEF) {
+		type_error(pos) << "Redeclaration: " << sym << endl;
 		// returns the first symbol
 		return sym_p;
 	}
+
+	constant_symbol *con = sym->get_constant_symbol();
+
 
 	// Set up the constant-specific fields.
 	con->type = type;
