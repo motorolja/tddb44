@@ -85,7 +85,7 @@ void code_generator::prologue(symbol *new_env)
         ar_size = align(func->ar_size);
         label_nr = func->label_nr;
         last_arg = func->last_parameter;
-        curr_level = proc->level;
+        curr_level = func->level;
     } else {
         fatal("code_generator::prologue() called for non-proc/func");
         return;
