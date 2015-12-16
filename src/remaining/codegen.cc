@@ -201,16 +201,20 @@ void code_generator::fetch_float(sym_index sym_p)
 {
   // fetch the symbol and do some type checking
   symbol* sym = sym_tab->get_symbol(sym_p);
-  if (sym->type == real_type && sym->tag == SYM_VAR) {
     int level,offset;
     find(sym_p,&level,&offset);
+
+  if (sym->type == real_type && sym->tag == SYM_VAR) {
     frame_address(level,RCX);
     out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RCX] << offset << "]" << endl;
-  }
-  else
-    {
+  }else
+  if(sym->type == real_type && sym->tag == SYM_PARAM)
+  {
+    frame_address(level,RCX);
+    out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RCX] << "+" << offset << "]" << endl;
+  }else
     fatal("In fetch_float(): Invalid symbol tag or type, tag needs to be SYM_VAR and type real_type.");
-  }
+
 }
 
 
