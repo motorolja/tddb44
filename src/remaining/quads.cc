@@ -395,14 +395,17 @@ void ast_expr_list::generate_parameter_list(quad_list &q,
         ast_expr_list *param_list,
         int *nr_params)
 {
-  //USE_Q;
+  USE_Q;
   /* Your code here */
   // TODO: Not sure if this does work, check back later
-  if (param_list != NULL) {
+  if (last_expr != NULL) {
       (*nr_params)++;
-      q += new quadruple(q_param,param_list->last_expr->generate_quads(q),NULL_SYM,NULL_SYM);
+      // whats if it is a real or int
+      q += new quadruple(q_param,last_expr->generate_quads(q),NULL_SYM,NULL_SYM);
       // recursive call with preceding parameter symbol, NULL if none
-      generate_parameter_list(q,param_list->preceding,nr_params);
+  }
+  if(preceding != NULL){
+      preceding->generate_parameter_list(q,preceding,nr_params);
   }
 }
 
