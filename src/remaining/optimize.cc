@@ -89,9 +89,9 @@ void ast_stmt_list::optimize()
 /* Optimize a list of expressions. */
 void ast_expr_list::optimize()
 {
-    if(last_expr != NULL)
-        last_expr->optimize();
     if(preceding != NULL)
+        preceding->optimize();
+    if(last_expr != NULL)
         last_expr = optimizer->fold_constants(last_expr);
 }
 
