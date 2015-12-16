@@ -263,12 +263,12 @@ void code_generator::store_float(sym_index sym_p)
 /* This function fetches the base address of an array. */
 void code_generator::array_address(sym_index sym_p, register_type dest)
 {
+    // we know that is a variable
     int level, offset;
     find(sym_p,&level, &offset);
     frame_address(level, RCX);
-    //# mov dest,[rcx-offset]
-    out << "\t\t" << "mov" << "\t"
-    << reg[dest] << ",[rcx" << offset << "]" << endl;
+    out << "\t\t" << "sub" << "\t" << reg[RCX] << "," << -offset << endl;
+    out << "\t\t" << "mov" << "\t" << reg[dest] << "," << reg[RCX] << endl;
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
