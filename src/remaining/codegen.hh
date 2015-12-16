@@ -44,6 +44,9 @@ private:
     // Get variable/parameter level & offset.
     void find(sym_index, int *, int *);
 
+    // Custom function
+    void register_foo(register_type);
+
     // memory -> register.
     void fetch(sym_index, const register_type);
 
