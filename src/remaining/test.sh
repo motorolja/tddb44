@@ -9,7 +9,7 @@ CODE="-code"
 ALL="-all"
 PGM="-pgm"
 FLAGS="$PARSER,$SEMANTIC,$OPTIMIZATION,$BINARY,$CODE,$ALL,$PGM"
-TEST_FILES=("codetest1" "quadtest1" "8q")
+TEST_FILES=("codetest1" "quadtest1" "8q" "sieve" "qsort" "testmath" "tryme" "stone" "return")
 
 EASY_FILES_GOOD=(1 2 6 7 8 11 13 14 15 16 17 19 20 21 22 23 24 25 26 29 30 31)
 
