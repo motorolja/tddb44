@@ -3,12 +3,13 @@
 { *   Standard I/O primitives   * }
 { *                             * }
 { ******************************* }
-
 procedure newline;
 const
-    NEWLINE = 10;
+    NEWLINE1 = 10;
+var
+    vlas : integer;
 begin
-    write(NEWLINE);
+    write(NEWLINE1);
 end;
 
 procedure write_int(val : integer);
