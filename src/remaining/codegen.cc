@@ -162,31 +162,14 @@ void code_generator::find(sym_index sym_p, int *level, int *offset)
 
 }
 
-void code_generator::register_foo(register_type bla){
-    switch(bla){
-        case RAX: 
-            out << "rax";
-            break;
-        case RCX: 
-            out << "rcx";
-            break;
-        case RDX: 
-            out << "rdx";
-            break;
-        default:
-            fatal("wrong dest");
-    }
-}
-
 /*
  * Generates code for getting the address of a frame for the specified scope level.
  */
 void code_generator::frame_address(int level, const register_type dest)
 {
     // store base address of the corresponding address
-    out << "\t\t" << "mov" << "\t";
-    register_foo(dest);
-    out << ",[rbp-"<< STACK_WIDTH * level <<"]"<<endl;
+    out << "\t\t" << "mov" << "\t"
+    << reg[dest] << ",[rbp-"<< STACK_WIDTH * level <<"]"<<endl;
 }
 
 /* This function fetches the value of a variable or a constant into a
@@ -198,19 +181,15 @@ void code_generator::fetch(sym_index sym_p, register_type dest)
     find(sym_p,&level, &offset);
 
     if(sym->tag == SYM_PARAM){
-        out << "\t\t" <<"mov" << "\t";
-        register_foo(dest);
+        out << "\t\t" <<"mov" << "\t"<< reg[dest]
         // has positiv offset
-        out <<",[rbp+" << offset <<"]" << endl;
+        <<",[rbp+" << offset <<"]" << endl;
     }else
     if(sym->tag == SYM_VAR || sym->tag == SYM_ARRAY){
         // # mov rcx,[rbp-level]
         frame_address(level, RCX);
         // # mov rax,[rcx offset]  
-        out << "\t\t" << "mov" << "\t";
-        // output right register
-        register_foo(dest);
-        out <<",[rcx" << offset << "]" <<endl;
+        out << "\t\t" << "mov" << "\t"<< reg[dest]  <<",["<< reg[RCX] << offset << "]" <<endl;
     }else
     if(sym->tag == SYM_CONST){
         fatal("after optimsation there shouldn't exit any constants");
@@ -237,20 +216,18 @@ void code_generator::store(register_type src, sym_index sym_p)
 
     symbol *sym = sym_tab->get_symbol(sym_p);
     if(sym->tag == SYM_PARAM){
-        out << "\t\t" << "mov" << "\t";
-        out <<"[rbp-" << offset <<"],";
-        register_foo(src);
-        out << endl;
+        out << "\t\t" << "mov" << "\t"
+        <<"[rcx-" << offset <<"],"
+        << reg[src] << endl;
     }else
-    if(sym->tag == SYM_VAR || sym->tag == SYM_ARRAY){
+    if(sym->tag == SYM_VAR){
 
         // # mov rcx,[rbp-level]
         frame_address(level, RCX);       
         // output right register
 
-        out <<"\t\t" << "mov" <<"\t"<< "[rcx" << offset << "],";
-        register_foo(src);
-        out << endl;
+        out <<"\t\t" << "mov" <<"\t"<< "[rcx" << offset << "],"
+        << reg[src] << endl;
     }
 }
 
@@ -270,9 +247,8 @@ void code_generator::array_address(sym_index sym_p, register_type dest)
     find(sym_p,&level, &offset);
     frame_address(level, RCX);
     //# mov dest,[rcx-offset]
-    out << "\t\t" << "mov" << "\t";
-    register_foo(dest);
-    out << ",[rcx" << offset << "]" << endl;
+    out << "\t\t" << "mov" << "\t"
+    << reg[dest] << ",[rcx" << offset << "]" << endl;
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
