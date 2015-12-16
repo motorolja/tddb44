@@ -220,10 +220,18 @@ void code_generator::fetch(sym_index sym_p, register_type dest)
 // take the variable  and push  to the fpu stack 
 void code_generator::fetch_float(sym_index sym_p)
 {
-    // take the variable
-    fetch(sym_p ,RCX);
-    //
-    out << "\t\t" << "fld" << "\t" << "rcx" << endl;
+  // fetch the symbol and do some type checking
+  symbol* sym = sym_tab->get_symbol(sym_p);
+  if (sym->type == real_type && sym->tag == SYM_VAR) {
+    int level,offset;
+    find(sym_p,&level,&offset);
+    frame_address(level,RCX);
+    out << "\t\t" << "fld" << "\t" << "qword ptr [" << reg[RCX] << offset << "]" << endl;
+  }
+  else
+    {
+    fatal("In fetch_float(): Invalid symbol tag or type, tag needs to be SYM_VAR and type real_type.");
+  }
 }
 
 
