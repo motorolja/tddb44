@@ -186,7 +186,7 @@ void code_generator::frame_address(int level, const register_type dest)
     // store base address of the corresponding address
     out << "\t\t" << "mov" << "\t";
     register_foo(dest);
-    out << ",[rbp"<< STACK_WIDTH * level <<"]"<<endl;
+    out << ",[rbp-"<< STACK_WIDTH * level <<"]"<<endl;
 }
 
 /* This function fetches the value of a variable or a constant into a
@@ -201,7 +201,7 @@ void code_generator::fetch(sym_index sym_p, register_type dest)
         out << "\t\t" <<"mov" << "\t";
         register_foo(dest);
         // has positiv offset
-        out <<"[rbp+" << offset <<"]" << endl;
+        out <<",[rbp+" << offset <<"]" << endl;
     }else
     if(sym->tag == SYM_VAR || sym->tag == SYM_ARRAY){
         // # mov rcx,[rbp-level]
@@ -266,7 +266,13 @@ void code_generator::store_float(sym_index sym_p)
 /* This function fetches the base address of an array. */
 void code_generator::array_address(sym_index sym_p, register_type dest)
 {
-    /* Your code here */
+    int level, offset;
+    find(sym_p,&level, &offset);
+    frame_address(level, RCX);
+    //# mov dest,[rcx-offset]
+    out << "\t\t" << "mov" << "\t";
+    register_foo(dest);
+    out << ",[rcx" << offset << "]" << endl;
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
