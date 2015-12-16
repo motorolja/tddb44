@@ -176,7 +176,7 @@ sym_index ast_elsif_list::type_check()
    itself in the symbol table as far as typechecking is concerned. */
 sym_index ast_id::type_check()
 {
-    if (sym_tab->get_symbol(sym_p)->tag != SYM_NAMETYPE) {
+    if (sym_tab->get_symbol_tag(sym_p) != SYM_NAMETYPE) {
         return type;
     }
     return sym_p;
