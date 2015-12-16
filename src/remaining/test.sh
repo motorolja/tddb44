@@ -7,8 +7,11 @@ OPTIMIZATION="-optimization"
 BINARY="-binary"
 CODE="-code"
 ALL="-all"
-FLAGS="$PARSER,$SEMANTIC,$OPTIMIZATION,$BINARY,$CODE,$ALL"
+PGM="-pgm"
+FLAGS="$PARSER,$SEMANTIC,$OPTIMIZATION,$BINARY,$CODE,$ALL,$PGM"
 TEST_FILES=("codetest1" "quadtest1" "8q")
+
+EASY_FILES_GOOD=(1 2 6 7 8 11 13 14 15 16 17 19 20 21 22 23 24 25 26 29 30 31)
 
 TEST_PATH="../testpgm/"
 
@@ -42,6 +45,20 @@ do
     ./diesel -o $test_file".o" ""$TEST_PATH""$test_file".d"
     echo "execute: $test_file "
     ./$test_file".o"
+done
+elif [ "$1" == "$PGM" ]
+then
+echo "clean up"
+rm out/*
+echo "start compiling and execute"
+
+TEST_PATH="../testpgm/others"
+for test_file_nr  in ${EASY_FILES_GOOD[*]}
+do
+    echo "compiling: $test_file_nr"
+    ./diesel  -t -o out/pgm$test_file_nr".o" ""$TEST_PATH"/pgm"$test_file_nr".d"
+    echo "execute: out/pgm $test_file_nr"
+    ./out/pgm$test_file_nr".o"
 done
 else
     echo "Invalid or no flag set, use either of following flags: $FLAGS"
