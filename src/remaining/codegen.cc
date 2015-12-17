@@ -250,7 +250,7 @@ void code_generator::store_float(sym_index sym_p)
     int level,offset;
     find(sym_p,&level,&offset);
     frame_address(level,RCX);
-    out << "\t\t" << "fistp" << "\t" << "qword ptr [" << reg[RCX] << offset << "]" << endl;
+    out << "\t\t" << "fstp" << "\t" << "qword ptr [" << reg[RCX] << offset << "]" << endl;
   }
   else
     {

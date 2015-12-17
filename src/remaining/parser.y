@@ -667,6 +667,10 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 {
                     $$ = NULL;
                 }
+		| error
+                {
+                    $$ = NULL;
+                }
                 ;
 
 lvariable       : lvar_id
